@@ -1,0 +1,37 @@
+1. Load the UR10
+    1.1 Load the Model
+    1.2 load controller
+    1.3 load gripper
+    1.4 load gripper controller
+    1.5 set home position for joints
+
+2. Load 3 Boxes on top of a table
+    2.1 set center location and limits for the boxes to spawn
+    2.2 Randomize the Box loactions each Run
+
+3. Define the tasks
+
+4. Move the robot
+    4.1 move robot gripper on top of the table
+
+5. Task 1:
+- take picture of the boxes from top of the table
+- save it to defined directory
+
+6. Task 2:
+- detect boxes
+- estimated size and rotations
+- estimate grip contact points
+- decide the order to execute the pick and place
+- send the estimations to defined variables and save it into logs also
+
+7. Task 3:
+- Read data from Task 2
+- call controller functions to move the robot to targets in order to pick n place
+- call gripper controller to set gripper open
+- move to pick up
+- close gripper
+- move to target position
+- open the gripper
+
+8. Repeat tasks until boxes finishes.
