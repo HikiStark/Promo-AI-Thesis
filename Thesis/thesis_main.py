@@ -9,11 +9,12 @@ import numpy as np
 from omni.isaac.nucleus import get_assets_root_path
 
 from omni.isaac.core import World
+from omni.isaac.core.objects import DynamicCuboid
 from omni.isaac.core.utils.prims import is_prim_path_valid
 from omni.isaac.core.utils.stage import get_stage_units
 from omni.isaac.core.utils.string import find_unique_string_name
-from omni.isaac.core.objects import DynamicCuboid
 from omni.isaac.core.utils.stage import add_reference_to_stage
+import omni.isaac.core.controllers.articulation_controller.ArticulationController
 
 from omni.isaac.manipulators import SingleManipulator
 from omni.isaac.manipulators.grippers import SurfaceGripper
@@ -25,6 +26,8 @@ from omni.isaac.universal_robots.controllers.pick_place_controller import (
 )
 from omni.isaac.universal_robots.controllers.rmpflow_controller import RMPFlowController
 from omni.isaac.universal_robots.tasks import FollowTarget
+
+import lib.setup_task as tasksetup
 
 # 1. Load the UR10 Model
 # Parse arguments for test mode
@@ -44,6 +47,8 @@ if assets_root_path is None:
 
 # Initialize the world
 my_world = World(stage_units_in_meters=1.0)
+
+# add ground plane
 my_world.scene.add_default_ground_plane()
 
 # 1.1 Load the UR10 model
@@ -67,39 +72,31 @@ ur10 = my_world.scene.add(
     )
 )
 
-# 1.4 Set initial joint states
+# Set initial joint states
 ur10.set_joints_default_state(
     positions=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0])
 )
 
-# 1.5 Set default gripper state
+# Set default gripper state
 ur10.gripper.set_default_state(opened=True)
 
-# 2. Load 3 boxes on the table
-my_world.scene.add_default_ground_plane()
-my_task2 = FollowTarget(name="follow_target_task", attach_gripper=True)
-# my_world.add_task(my_task2) # When activated, robot moves crazy.
-my_world.reset()
-
-# 3. Define the tasks
+# Define the tasks
 articulation_controller = ur10.get_articulation_controller()
-
-# Pick and place controller
-# my_controller = PickPlaceController(
-#     name="pick_place_controller", gripper=ur10.gripper, robot_articulation=ur10
-# )
 
 # RMPFlow controller for advanced movement
 my_controller_RMP = RMPFlowController(
     name="target_follower_controller", robot_articulation=ur10, attach_gripper=True
 )
 
-# 4. Move the robot to initial position
-# Move robot's gripper on top of the table
+# Move the robot to initial home position on top of the table
+table = tasksetup.table
+table_home_pos = table.get_local_pose()[0]
+articulation_controller.apply_action(table_home_pos)
 
-# Initialize task parameters
-# task_params = my_world.get_task("follow_target_task").get_params()
-# target_name = task_params["target_name"]["value"]
+# Load 3 boxes on the table
+tasksetup.add_cubes()
+my_world.reset()
+
 
 # 5-7. Tasks: Detect boxes, estimate grip points, pick and place
 reset_needed = False
@@ -118,20 +115,15 @@ while simulation_app.is_running():
 
         # Example: Move to a specific target position
         target_position = np.array([0.5, 0.5, 0.3])  # Define specific target position
-        target_orientation = np.array([0, 0, 0, 1])  # Define specific target orientation (quaternion)
+        target_orientation = np.array(
+            [0, 0, 0, 1]
+        )  # Define specific target orientation (quaternion)
 
         actions = my_controller_RMP.forward(
             target_end_effector_position=target_position,
             target_end_effector_orientation=target_orientation,
         )
         # 6. Task 2: Detect boxes and estimate grip points
-        # actions = my_controller_RMP.forward(
-            # target_end_effector_position=observations[target_name]["position"],
-            # target_end_effector_orientation=observations[target_name]["orientation"],
-            # target_end_effector_position=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0]),
-            # target_end_effector_orientation=,
-
-        # )
 
         # Execute actions
         articulation_controller.apply_action(actions)
