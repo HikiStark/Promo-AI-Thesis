@@ -1,33 +1,6 @@
-from isaacsim import SimulationApp
-
-simulation_app = SimulationApp({"headless": False})
-
-import sys
-import carb
-import argparse
-import numpy as np
-from omni.isaac.nucleus import get_assets_root_path
-
-from omni.isaac.core import World
-from omni.isaac.core.objects import DynamicCuboid
-from omni.isaac.core.utils.prims import is_prim_path_valid
-from omni.isaac.core.utils.stage import get_stage_units
-from omni.isaac.core.utils.string import find_unique_string_name
-from omni.isaac.core.utils.stage import add_reference_to_stage
-import omni.isaac.core.controllers.articulation_controller.ArticulationController
-
-from omni.isaac.manipulators import SingleManipulator
-from omni.isaac.manipulators.grippers import SurfaceGripper
-
-from omni.isaac.universal_robots import UR10
-from omni.isaac.universal_robots.controllers import StackingController
-from omni.isaac.universal_robots.controllers.pick_place_controller import (
-    PickPlaceController,
-)
-from omni.isaac.universal_robots.controllers.rmpflow_controller import RMPFlowController
-from omni.isaac.universal_robots.tasks import FollowTarget
-
+from lib.setup_import_standart import *
 import lib.setup_task as tasksetup
+from lib.object_detect_lib.cube_detect import detect_edges_pic as detect_box
 
 # 1. Load the UR10 Model
 # Parse arguments for test mode
@@ -48,45 +21,9 @@ if assets_root_path is None:
 # Initialize the world
 my_world = World(stage_units_in_meters=1.0)
 
-# add ground plane
-my_world.scene.add_default_ground_plane()
+tasksetup.set_the_scene()  # set up all the needed assets other than the robot.
+tasksetup.setup_robot()
 
-# 1.1 Load the UR10 model
-asset_path = assets_root_path + "/Isaac/Robots/UniversalRobots/ur10/ur10.usd"
-add_reference_to_stage(usd_path=asset_path, prim_path="/World/UR10")
-
-# 1.2 Load the gripper
-gripper_usd = assets_root_path + "/Isaac/Robots/UR10/Props/short_gripper.usd"
-add_reference_to_stage(usd_path=gripper_usd, prim_path="/World/UR10/ee_link")
-gripper = SurfaceGripper(
-    end_effector_prim_path="/World/UR10/ee_link", translate=0.1611, direction="x"
-)
-
-# 1.3 Initialize the robot with gripper
-ur10 = my_world.scene.add(
-    SingleManipulator(
-        prim_path="/World/UR10",
-        name="my_ur10",
-        end_effector_prim_path="/World/UR10/ee_link",
-        gripper=gripper,
-    )
-)
-
-# Set initial joint states
-ur10.set_joints_default_state(
-    positions=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0])
-)
-
-# Set default gripper state
-ur10.gripper.set_default_state(opened=True)
-
-# Define the tasks
-articulation_controller = ur10.get_articulation_controller()
-
-# RMPFlow controller for advanced movement
-my_controller_RMP = RMPFlowController(
-    name="target_follower_controller", robot_articulation=ur10, attach_gripper=True
-)
 
 # Move the robot to initial home position on top of the table
 table = tasksetup.table
