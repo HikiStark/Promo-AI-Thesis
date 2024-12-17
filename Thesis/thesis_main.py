@@ -2,37 +2,16 @@ from lib.setup_import_standart import *
 import lib.setup_task as tasksetup
 from lib.object_detect_lib.cube_detect import detect_edges_pic as detect_box
 
-# 1. Load the UR10 Model
-# Parse arguments for test mode
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--test", default=False, action="store_true", help="Run in test mode"
-)
-args, unknown = parser.parse_known_args()
-
-# Load asset root path
-assets_root_path = get_assets_root_path()
-if assets_root_path is None:
-    carb.log_error("Could not find Isaac Sim assets folder")
-    simulation_app.close()
-    sys.exit()
-
-
 # Initialize the world
 my_world = World(stage_units_in_meters=1.0)
 
 tasksetup.set_the_scene()  # set up all the needed assets other than the robot.
 tasksetup.setup_robot()
 
-
 # Move the robot to initial home position on top of the table
 table = tasksetup.table
 table_home_pos = table.get_local_pose()[0]
-articulation_controller.apply_action(table_home_pos)
-
-# Load 3 boxes on the table
-tasksetup.add_cubes()
-my_world.reset()
+tasksetup.setup_robot.articulation_controller.apply_action(table_home_pos)
 
 
 # 5-7. Tasks: Detect boxes, estimate grip points, pick and place

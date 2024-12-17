@@ -1,14 +1,21 @@
 from lib.setup_import_standart import *
 
-
-from omni.isaac.core import World
-from omni.isaac.core.objects import VisualCuboid, DynamicCuboid
-from omni.isaac.core.utils.rotations import euler_angles_to_quat
-from omni.isaac.sensor import Camera
-
 # Create a World
 world = World(stage_units_in_meters=1.0)
 
+# Parse arguments for test mode
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--test", default=False, action="store_true", help="Run in test mode"
+)
+args, unknown = parser.parse_known_args()
+
+# Load asset root path
+assets_root_path = get_assets_root_path()
+if assets_root_path is None:
+    carb.log_error("Could not find Isaac Sim assets folder")
+    simulation_app.close()
+    sys.exit()
 
 class setup_robot:
     # 1.1 Load the UR10 model
@@ -80,34 +87,13 @@ class add_cubes:
         )
         world.scene.add(cube)
 
-
-# Add a Camera pointing downward at the table
-# Let's place it at (0,0,1.5) so it's above the table.
-# We need to rotate the camera to look straight down.
-# If the camera initially looks along the +X axis, a rotation of -90 degrees about the Y-axis
-# will align it to look down the -Z axis.
-class add_camera:
-    camera_orientation = euler_angles_to_quat(
-        [0, -90, 0]
-    )  # [roll, pitch, yaw] in degrees
-    camera = Camera(
-        prim_path="/World/OverheadCamera",
-        translation=(0.0, 0.0, 1.5),
-        orientation=camera_orientation,
-        resolution=(1920, 1080),
-    )
-    world.scene.add(camera)
-
-
-camera = add_camera.camera
-
+camera = camera_add()
 
 class set_the_scene:
     world.scene.add_default_ground_plane()  # add ground plane
     add_table()
     add_cubes()
-    add_camera()
-
+    camera_add()
 
 world.reset()
 for _ in range(10):
