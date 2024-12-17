@@ -1,7 +1,3 @@
-from isaacsim import SimulationApp
-
-simulation_app = SimulationApp({"headless": False})
-
 import sys
 import carb
 import argparse
@@ -15,7 +11,7 @@ from omni.isaac.core.utils.string import find_unique_string_name
 from omni.isaac.core.utils.stage import add_reference_to_stage
 from omni.isaac.core.objects import VisualCuboid, DynamicCuboid
 from omni.isaac.core.utils.rotations import euler_angles_to_quat
-import omni.isaac.core.controllers.articulation_controller.ArticulationController
+# import omni.isaac.core.controllers.articulation_controller.ArticulationController
 
 from omni.isaac.manipulators import SingleManipulator
 from omni.isaac.manipulators.grippers import SurfaceGripper
@@ -30,4 +26,4 @@ from omni.isaac.universal_robots.controllers.pick_place_controller import (
     PickPlaceController,
 )
 
-from lib.setup_camera import (camera_add, camera_add_overhead)
+# from lib.setup_camera import (camera_add, camera_add_overhead)

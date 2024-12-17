@@ -1,7 +1,3 @@
-from isaacsim import SimulationApp
-
-simulation_app = SimulationApp({"headless": False})
-
 import sys
 import numpy as np
 from omni.isaac.core import World
@@ -11,10 +7,8 @@ from omni.isaac.core.utils.rotations import euler_angles_to_quat
 from omni.isaac.sensor import Camera
 
 world = World(stage_units_in_meters=1.0)
-stage = world.get_stage()
 
-
-class camera_add:
+def camera_add():
     camera = Camera(
         prim_path="/World/MyCamera",  # The USD path where the camera will be added
         translation=(0.0, 0.0, 2.0),  # Position of the camera in world coordinates
@@ -25,10 +19,9 @@ class camera_add:
     world.scene.add(camera)
 
 
-rgb_image = camera_add.get_rgb_image()
+# rgb_image = camera_add.get_rgb_image()
 
-
-class camera_add_overhead:
+def camera_add_overhead():
     camera_orientation = euler_angles_to_quat(
         [0, -90, 0]
     )  # [roll, pitch, yaw] in degrees
@@ -39,7 +32,6 @@ class camera_add_overhead:
         resolution=(1080, 1080),
     )
     world.scene.add(camera)
-
 
 # Add a Camera pointing downward at the table
 # Let's place it at (0,0,1.5) so it's above the table.

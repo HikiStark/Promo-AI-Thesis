@@ -1,23 +1,17 @@
 from lib.setup_import_standart import *
 
-# Create a World
+from lib.setup_camera import (camera_add, camera_add_overhead)
+
 world = World(stage_units_in_meters=1.0)
 
-# Parse arguments for test mode
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--test", default=False, action="store_true", help="Run in test mode"
-)
-args, unknown = parser.parse_known_args()
 
-# Load asset root path
-assets_root_path = get_assets_root_path()
-if assets_root_path is None:
-    carb.log_error("Could not find Isaac Sim assets folder")
-    simulation_app.close()
-    sys.exit()
+def setup_robot():
+    # # Load asset root path
+    assets_root_path = get_assets_root_path()
+    if assets_root_path is None:
+        carb.log_error("Could not find Isaac Sim assets folder")
+        sys.exit()
 
-class setup_robot:
     # 1.1 Load the UR10 model
     asset_path = assets_root_path + "/Isaac/Robots/UniversalRobots/ur10/ur10.usd"
     add_reference_to_stage(usd_path=asset_path, prim_path="/World/UR10")
@@ -61,7 +55,7 @@ class setup_robot:
 # ---------------------------------------------------------------------------------------------------------------
 # Create a "Table" using a Static Cuboid
 # Let's say our table surface is 1 meter by 1 meter, and 0.05m thick.
-class add_table:
+def add_table():
     table = VisualCuboid(
         prim_path="/World/Table",
         name="table",
@@ -75,7 +69,7 @@ class add_table:
 
 # Add some cubes on top of the table
 # Each cube is small, say 0.05m on a side.
-class add_cubes:
+def add_cubes():
     cube_positions = [(0.0, 0.0, 0.525), (0.1, 0.1, 0.525), (-0.1, 0.1, 0.525)]
     for i, pos in enumerate(cube_positions):
         cube = DynamicCuboid(
@@ -87,15 +81,18 @@ class add_cubes:
         )
         world.scene.add(cube)
 
-camera = camera_add()
+
+# camera = camera_add()
+
 
 class set_the_scene:
     world.scene.add_default_ground_plane()  # add ground plane
-    add_table()
-    add_cubes()
-    camera_add()
+    # add_table()
+    # add_cubes()
+    # camera
 
-world.reset()
-for _ in range(10):
-    world.step(render=True)
-    camera.get_rgb_image()
+
+# world.reset()
+# for _ in range(10):
+#     world.step(render=True)
+# camera.get_rgb_image()
