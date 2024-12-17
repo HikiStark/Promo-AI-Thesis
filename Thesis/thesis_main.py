@@ -116,6 +116,8 @@ while simulation_app.is_running():
             reset_needed = False
         observations = my_world.get_observations()
 
+        # 6. Task 2: Detect boxes and estimate grip points
+
         # Example: Move to a specific target position
         target_position = np.array([0.5, 0.5, 0.3])  # Define specific target position
         target_orientation = np.array([0, 0, 0, 1])  # Define specific target orientation (quaternion)
@@ -124,14 +126,6 @@ while simulation_app.is_running():
             target_end_effector_position=target_position,
             target_end_effector_orientation=target_orientation,
         )
-        # 6. Task 2: Detect boxes and estimate grip points
-        # actions = my_controller_RMP.forward(
-            # target_end_effector_position=observations[target_name]["position"],
-            # target_end_effector_orientation=observations[target_name]["orientation"],
-            # target_end_effector_position=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0]),
-            # target_end_effector_orientation=,
-
-        # )
 
         # Execute actions
         articulation_controller.apply_action(actions)
