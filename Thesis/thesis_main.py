@@ -1,16 +1,15 @@
 from isaacsim import SimulationApp
 
 simulation_app = SimulationApp({"headless": False})
-
 from lib.setup_import_standart import *
+from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup
+
 # from lib.object_detect_lib.cube_detect import detect_edges_pic as detect_box
 
-# Initialize the world
-my_world = World(stage_units_in_meters=1.0)
 
-tasksetup.set_the_scene() 
-tasksetup.setup_robot()
+tasksetup.set_the_scene()
+# setup_robot()
 
 # Move the robot to initial home position on top of the table
 # table = tasksetup.table
@@ -21,9 +20,9 @@ tasksetup.setup_robot()
 # 5-7. Tasks: Detect boxes, estimate grip points, pick and place
 reset_needed = False
 while simulation_app.is_running():
-    my_world.step(render=True)
+    world.step(render=True)
 
-    if my_world.is_stopped() and not reset_needed:
+    if world.is_stopped() and not reset_needed:
         reset_needed = True
 
     # if my_world.is_playing():

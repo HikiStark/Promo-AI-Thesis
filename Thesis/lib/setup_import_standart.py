@@ -30,3 +30,5 @@ from omni.isaac.universal_robots.controllers.pick_place_controller import (
 )
 
 # from lib.setup_camera import (camera_add, camera_add_overhead)
+
+world = World(stage_units_in_meters=1.0)
