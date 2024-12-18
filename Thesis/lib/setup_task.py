@@ -7,6 +7,29 @@ from pxr import UsdGeom
 world = World(stage_units_in_meters=1.0)
 
 
+# def apply_collision(prim):
+#     """
+#     Apply collision and physics attributes to a given prim.
+
+#     Args:
+#         prim (Usd.Prim): The USD prim to which collision will be applied.
+#     """
+#     # Apply collision properties
+#     UsdPhysics.CollisionAPI.Apply(prim)
+
+#     # Set collision type as convexHull for efficiency
+#     collision_attr = PhysxSchema.PhysxCollisionAPI.Apply(prim)
+#     collision_attr.CreateCollisionTypeAttr().Set(
+#         "convexHull"
+#     )  # Options: convexHull, mesh, none
+
+#     # Enable rigid body physics
+#     physics_api = UsdPhysics.RigidBodyAPI.Apply(prim)
+#     physics_api.CreateRigidBodyEnabledAttr(True)
+
+#     print(f"Collision applied to prim: {prim.GetPath()}")
+
+
 def setup_robot():
     # # Load asset root path
     assets_root_path = get_assets_root_path()
@@ -65,31 +88,98 @@ def add_table():
 
 
 def add_table_usd():
+    """
+    Add a table USD asset to the stage and verify it.
+    """
+    # Define paths
+    usd_path = "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Environments/Outdoor/Rivermark/dsready_content/nv_content/common_assets/props_general/table01/table01.usd"
+    prim_path = "/World/Table"
+
+    print("Adding table USD asset...")
+
+    # Add USD to the stage
+    add_reference_to_stage(usd_path=usd_path, prim_path=prim_path)
+
+    # Get the current stage
+    stage = get_current_stage()
+    print(f"Stage object: {stage}")
+
+    # Debug: Check if the stage object is valid
+    if not isinstance(stage, Usd.Stage):
+        raise RuntimeError("Error: Failed to get a valid stage object.")
+
+    # Get the prim at the specified path
+    sdf_path = Sdf.Path(prim_path)  # Convert prim_path to Sdf.Path
+    print(f"Retrieving prim at: {sdf_path}")
+
+    prim = stage.GetPrimAtPath(sdf_path)
+    print(f"Prim object: {prim}")
+
+    # Validate the prim
+    if not prim.IsValid():
+        print(f"Error: Prim at {prim_path} is not valid.")
+        return
+
+    print(f"Success: Table prim added at {prim_path}")
+
+    apply_collision(prim)
+    print(f"Success: Table prim added and collision applied at {sdf_path}")
+
+
+def apply_collision(prim):
+    """
+    Apply collision and physics properties to a given prim.
+
+    Args:
+        prim (Usd.Prim): The USD prim to which collision will be applied.
+    """
+    # Apply the collision API
+    collision_api = UsdPhysics.CollisionAPI.Apply(prim)
+    print("Collision API applied.")
+
+    # Set physics attributes
+    collision_type_attr = collision_api.GetCollisionEnabledAttr()
+    if not collision_type_attr:
+        collision_api.CreateCollisionEnabledAttr(True)
+        print("Collision enabled attribute created.")
+
+    # Add physics mass (optional for dynamic bodies)
+    if not prim.HasAPI(UsdPhysics.RigidBodyAPI):
+        UsdPhysics.RigidBodyAPI.Apply(prim)
+        print("Rigid body API applied to enable physics.")
+
+    print("Collision successfully applied to prim.")
+
+
+def add_cube_nvidia():
     add_reference_to_stage(  # Add a pre-existing table USD file
-        usd_path="omniverse://localhost/NVIDIA/Assets/Props/Furniture/Table.usd",
-        prim_path="/World/Table",
+        usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/nvidia_cube.usd",
+        prim_path="/World/cube",
     )
 
-    # Position the table
-    table_prim = UsdGeom.Xformable(stage.GetPrimAtPath("/World/Table"))
-    table_prim.AddTranslateOp().Set(value=(0.0, 0.0, 0.5))  # Position the table
+
+def add_cube_dex():
+    add_reference_to_stage(  # Add a pre-existing table USD file
+        usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/DexCube/dex_cube_instanceable.usd",
+        prim_path="/World/cube",
+    )
+
+
+def add_cube_multicolor():
+    add_reference_to_stage(  # Add a pre-existing table USD file
+        usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/MultiColorCube/multi_color_cube_instanceable.usd",
+        prim_path="/World/cube",
+    )
 
 
 def add_cubes():  # Add some cubes on top of the table. Each cube is small, say 0.05m on a side.
     cube_positions = [(0.0, 0.0, 0.525), (0.1, 0.1, 0.525), (-0.1, 0.1, 0.525)]
     for i, pos in enumerate(cube_positions):
-        cube = DynamicCuboid(
-            prim_path=f"/World/Cube_{i}",
-            name=f"cube_{i}",
-            position=pos,
-            size=(0.05, 0.05, 0.05),
-            color=(1.0, 0.0, 0.0),  # Red cubes
-        )
-        world.scene.add(cube)
+        add_cube_nvidia()
 
 
-class set_the_scene:
+def set_the_scene():
     world.scene.add_default_ground_plane()  # add ground plane
     add_table_usd()
-    # add_cubes()
+    add_cubes()
     # camera
