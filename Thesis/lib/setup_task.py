@@ -53,16 +53,6 @@ def setup_robot():
 
 
 def add_table():
-    table = FixedCuboid(
-        prim_path="/World/table",
-        name="table",
-        position=np.array([0.0, 0.0, 0.5]),  # Position above the ground plane
-        scale=np.array([1.0, 2.0, 0.1]),  # Dimensions of the table
-        color=np.array([0.7, 0.4, 0.2]),  # Color of the table
-    )
-
-
-def add_table_usd():
     """
     Add a table USD asset to the stage and verify it.
     """
@@ -126,13 +116,6 @@ def apply_collision(prim):
     print("Collision successfully applied to prim.")
 
 
-def add_cube_nvidia():
-    add_reference_to_stage(  # Add a pre-existing table USD file
-        usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/nvidia_cube.usd",
-        prim_path="/World/cube",
-    )
-
-
 def add_cube_dex():
     add_reference_to_stage(  # Add a pre-existing table USD file
         usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/DexCube/dex_cube_instanceable.usd",
@@ -147,14 +130,41 @@ def add_cube_multicolor():
     )
 
 
-def add_cubes():  # Add some cubes on top of the table. Each cube is small, say 0.05m on a side.
-    cube_positions = [(0.0, 0.0, 0.525), (0.1, 0.1, 0.525), (-0.1, 0.1, 0.525)]
+def add_cube_nvidia(index, position):
+    """
+    Add a cube with a unique name at the specified position.
+
+    Args:
+        index (int): Unique index for naming the cube.
+        position (tuple): (x, y, z) position to place the cube.
+    """
+    prim_path = f"/World/cube_{index}"  # Unique path for each cube
+    add_reference_to_stage(
+        usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/nvidia_cube.usd",
+        prim_path=prim_path,
+    )
+
+    # Move cube to the desired position
+    cube_prim = get_prim_at_path(prim_path)
+    if not cube_prim.IsValid():
+        print(f"Error: Cube at {prim_path} is invalid.")
+        return
+
+    UsdGeom.Xformable(cube_prim).AddTranslateOp().Set(position)
+    print(f"Cube {index} added at position {position}")
+
+
+def add_cubes():
+    """
+    Add multiple cubes at different positions.
+    """
+    cube_positions = [(0.0, 0.0, 0.825), (0.1, 0.1, 0.825), (-0.1, 0.1, 0.825)]
     for i, pos in enumerate(cube_positions):
-        add_cube_nvidia()
+        add_cube_nvidia(i, pos)  # Pass unique index and position
 
 
 def set_the_scene():
     world.scene.add_default_ground_plane()  # add ground plane
-    add_table_usd()
+    add_table()
     add_cubes()
     # camera
