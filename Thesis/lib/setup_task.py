@@ -1,33 +1,8 @@
 from lib.setup_import_standart import *
 
-from omni.isaac.core.utils.stage import add_reference_to_stage
 from lib.setup_camera import camera_add, camera_add_overhead
-from pxr import UsdGeom
 
 world = World(stage_units_in_meters=1.0)
-
-
-# def apply_collision(prim):
-#     """
-#     Apply collision and physics attributes to a given prim.
-
-#     Args:
-#         prim (Usd.Prim): The USD prim to which collision will be applied.
-#     """
-#     # Apply collision properties
-#     UsdPhysics.CollisionAPI.Apply(prim)
-
-#     # Set collision type as convexHull for efficiency
-#     collision_attr = PhysxSchema.PhysxCollisionAPI.Apply(prim)
-#     collision_attr.CreateCollisionTypeAttr().Set(
-#         "convexHull"
-#     )  # Options: convexHull, mesh, none
-
-#     # Enable rigid body physics
-#     physics_api = UsdPhysics.RigidBodyAPI.Apply(prim)
-#     physics_api.CreateRigidBodyEnabledAttr(True)
-
-#     print(f"Collision applied to prim: {prim.GetPath()}")
 
 
 def setup_robot():
