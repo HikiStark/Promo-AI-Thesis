@@ -10,7 +10,7 @@ import lib.setup_task as tasksetup
 my_world = World(stage_units_in_meters=1.0)
 
 tasksetup.set_the_scene() 
-# tasksetup.setup_robot()
+tasksetup.setup_robot()
 
 # Move the robot to initial home position on top of the table
 # table = tasksetup.table
