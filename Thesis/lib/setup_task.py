@@ -1,6 +1,8 @@
 from lib.setup_import_standart import *
 
-from lib.setup_camera import (camera_add, camera_add_overhead)
+from omni.isaac.core.utils.stage import add_reference_to_stage
+from lib.setup_camera import camera_add, camera_add_overhead
+from pxr import UsdGeom
 
 world = World(stage_units_in_meters=1.0)
 
@@ -52,24 +54,28 @@ def setup_robot():
     )
 
 
-# ---------------------------------------------------------------------------------------------------------------
-# Create a "Table" using a Static Cuboid
-# Let's say our table surface is 1 meter by 1 meter, and 0.05m thick.
 def add_table():
-    table = VisualCuboid(
-        prim_path="/World/Table",
+    table = FixedCuboid(
+        prim_path="/World/table",
         name="table",
-        position=(0.0, 0.0, 0.5),  # This elevates the table top at z=0.5m
-        size=(1.0, 1.0, 0.05),  # (X, Y, Z) size
-        color=(0.6, 0.3, 0.0),  # Brownish color
+        position=np.array([0.0, 0.0, 0.5]),  # Position above the ground plane
+        scale=np.array([1.0, 2.0, 0.1]),  # Dimensions of the table
+        color=np.array([0.7, 0.4, 0.2]),  # Color of the table
     )
 
-    world.scene.add(table)
+
+def add_table_usd():
+    add_reference_to_stage(  # Add a pre-existing table USD file
+        usd_path="omniverse://localhost/NVIDIA/Assets/Props/Furniture/Table.usd",
+        prim_path="/World/Table",
+    )
+
+    # Position the table
+    table_prim = UsdGeom.Xformable(stage.GetPrimAtPath("/World/Table"))
+    table_prim.AddTranslateOp().Set(value=(0.0, 0.0, 0.5))  # Position the table
 
 
-# Add some cubes on top of the table
-# Each cube is small, say 0.05m on a side.
-def add_cubes():
+def add_cubes():  # Add some cubes on top of the table. Each cube is small, say 0.05m on a side.
     cube_positions = [(0.0, 0.0, 0.525), (0.1, 0.1, 0.525), (-0.1, 0.1, 0.525)]
     for i, pos in enumerate(cube_positions):
         cube = DynamicCuboid(
@@ -82,17 +88,8 @@ def add_cubes():
         world.scene.add(cube)
 
 
-# camera = camera_add()
-
-
 class set_the_scene:
     world.scene.add_default_ground_plane()  # add ground plane
-    # add_table()
+    add_table_usd()
     # add_cubes()
     # camera
-
-
-# world.reset()
-# for _ in range(10):
-#     world.step(render=True)
-# camera.get_rgb_image()
