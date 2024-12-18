@@ -1,5 +1,4 @@
 from lib.setup_import_standart import *
-# from lib.setup_camera import camera_add, camera_add_overhead
 
 
 def setup_robot():

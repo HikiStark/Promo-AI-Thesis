@@ -9,7 +9,7 @@ import lib.setup_task as tasksetup
 
 
 tasksetup.set_the_scene()
-# setup_robot()
+setup_robot()
 
 # Move the robot to initial home position on top of the table
 # table = tasksetup.table
