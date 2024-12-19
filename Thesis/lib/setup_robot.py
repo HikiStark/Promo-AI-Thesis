@@ -54,6 +54,8 @@ def setup_robot():
         name="target_follower_controller", robot_articulation=ur10, attach_gripper=True
     )
 
+    return articulation_controller, my_controller_RMP
+
 
 def attach_robot_to_table(robot_prim_path, table_prim_path):
     """
@@ -129,6 +131,10 @@ def attach_robot_to_table_with_relative_position(robot_prim_path, table_prim_pat
     if not table_prim.IsValid():
         raise ValueError(f"Error: Table prim at {table_prim_path} is not valid.")
 
+    # # Ensure physics attributes are disabled on the robot base to avoid conflicts
+    # if robot_prim.HasAPI(UsdPhysics.RigidBodyAPI):
+    #     UsdPhysics.RigidBodyAPI(robot_prim).GetRigidBodyEnabledAttr().Set(False)
+
     # Get the table's bounding box to calculate the top surface position
     table_geom = UsdGeom.Boundable(table_prim)
     bbox = table_geom.ComputeWorldBound(0, "default")
@@ -154,8 +160,8 @@ def attach_robot_to_table_with_relative_position(robot_prim_path, table_prim_pat
     print(f"Robot attached to table at position {table_top_position}.")
 
     # Optionally apply physics constraints to fix the robot to the table
-    if not robot_prim.HasAPI(UsdPhysics.RigidBodyAPI):
-        UsdPhysics.RigidBodyAPI.Apply(robot_prim)
+    # if not robot_prim.HasAPI(UsdPhysics.RigidBodyAPI):
+    #     UsdPhysics.RigidBodyAPI.Apply(robot_prim)
 
     # Add a joint to attach the robot base to the table
     joint_prim_path = f"{robot_prim_path}/base_joint"
@@ -171,5 +177,4 @@ def attach_robot_to_table_with_relative_position(robot_prim_path, table_prim_pat
 def set_robot_attach_table():
     robot_prim_path = "/World/UR10"
     table_prim_path = "/World/Table"
-    # attach_robot_to_table(robot_prim_path, table_prim_path)
     attach_robot_to_table_with_relative_position(robot_prim_path, table_prim_path)

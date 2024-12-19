@@ -46,6 +46,8 @@ def add_table():
     apply_collision(prim)
     print(f"\nSuccess: Table prim added and collision applied at {sdf_path}")
 
+    return prim
+
 
 def apply_collision(prim):
     """
@@ -109,7 +111,7 @@ def add_cubes():
 
 def set_the_scene():
     world.scene.add_default_ground_plane()  # add ground plane
-    add_table()
+    table = add_table()
     add_cubes()
     camera = add_camera_to_scene(
         prim_path="/World/OverheadCamera",
