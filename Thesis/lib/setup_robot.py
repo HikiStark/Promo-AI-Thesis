@@ -105,7 +105,71 @@ def attach_robot_to_table(robot_prim_path, table_prim_path):
     print("Physics constraints applied to the robot.")
 
 
+def attach_robot_to_table_with_relative_position(robot_prim_path, table_prim_path):
+    """
+    Attach the robot to the table by aligning its base position relative to the table's top surface.
+    Automatically calculates the table's dimensions and sets the robot's position accordingly.
+
+    Args:
+        robot_prim_path (str): The prim path of the robot in the USD stage.
+        table_prim_path (str): The prim path of the table in the USD stage.
+
+    Returns:
+        None
+    """
+    # Get the current stage
+    stage = get_current_stage()
+
+    # Retrieve the robot and table prims
+    robot_prim = get_prim_at_path(robot_prim_path)
+    table_prim = get_prim_at_path(table_prim_path)
+
+    if not robot_prim.IsValid():
+        raise ValueError(f"Error: Robot prim at {robot_prim_path} is not valid.")
+    if not table_prim.IsValid():
+        raise ValueError(f"Error: Table prim at {table_prim_path} is not valid.")
+
+    # Get the table's bounding box to calculate the top surface position
+    table_geom = UsdGeom.Boundable(table_prim)
+    bbox = table_geom.ComputeWorldBound(0, "default")
+    table_min = bbox.GetRange().GetMin()
+    table_max = bbox.GetRange().GetMax()
+
+    # Calculate the top center of the table
+    table_top_position = Gf.Vec3d(
+        (table_min[0] + table_max[0]) / 2,  # Center along X
+        (table_min[1] + table_max[1]) / 2,  # Center along Y
+        table_max[2],  # Top surface Z
+    )
+
+    # Adjust robot's base to align with the table's top
+    robot_xform = UsdGeom.Xformable(robot_prim)
+
+    # Ensure a reset for xform ops to avoid conflicts
+    robot_xform.ClearXformOpOrder()
+    print("Cleared existing transform operations before setting new translation.")
+
+    robot_xform.AddTranslateOp().Set(table_top_position)
+
+    print(f"Robot attached to table at position {table_top_position}.")
+
+    # Optionally apply physics constraints to fix the robot to the table
+    if not robot_prim.HasAPI(UsdPhysics.RigidBodyAPI):
+        UsdPhysics.RigidBodyAPI.Apply(robot_prim)
+
+    # Add a joint to attach the robot base to the table
+    joint_prim_path = f"{robot_prim_path}/base_joint"
+    if not stage.GetPrimAtPath(joint_prim_path).IsValid():
+        joint = UsdPhysics.FixedJoint.Define(stage, joint_prim_path)
+        joint.CreateBody0Rel().SetTargets([table_prim.GetPath()])
+        joint.CreateBody1Rel().SetTargets([robot_prim.GetPath()])
+        print("Fixed joint created between the robot and the table.")
+
+    print("Physics constraints applied to the robot.")
+
+
 def set_robot_attach_table():
     robot_prim_path = "/World/UR10"
     table_prim_path = "/World/Table"
-    attach_robot_to_table(robot_prim_path, table_prim_path)
+    # attach_robot_to_table(robot_prim_path, table_prim_path)
+    attach_robot_to_table_with_relative_position(robot_prim_path, table_prim_path)
