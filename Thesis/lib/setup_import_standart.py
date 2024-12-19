@@ -4,7 +4,7 @@ import argparse
 import numpy as np
 from omni.isaac.nucleus import get_assets_root_path
 
-from pxr import UsdPhysics, PhysxSchema, Usd, Sdf, UsdGeom
+from pxr import UsdPhysics, PhysxSchema, Usd, Sdf, UsdGeom, Gf 
 
 from omni.isaac.core import World
 from omni.isaac.core.utils.stage import get_stage_units

@@ -8,8 +8,8 @@ import lib.setup_task as tasksetup
 # from lib.object_detect_lib.cube_detect import detect_edges_pic as detect_box
 
 
-tasksetup.set_the_scene()
 setup_robot()
+tasksetup.set_the_scene()
 
 # Move the robot to initial home position on top of the table
 # table = tasksetup.table

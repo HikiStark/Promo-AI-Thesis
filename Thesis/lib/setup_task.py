@@ -1,13 +1,19 @@
 from lib.setup_import_standart import *
 from lib.setup_camera import add_camera_to_scene
+from lib.setup_robot import attach_robot_to_table, set_robot_attach_table
 
+# # Load asset root path
+assets_root_path = get_assets_root_path()
+if assets_root_path is None:
+    carb.log_error("Could not find Isaac Sim assets folder")
+    sys.exit()
 
 def add_table():
     """
     Add a table USD asset to the stage and verify it.
     """
     # Define paths
-    usd_path = "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Environments/Outdoor/Rivermark/dsready_content/nv_content/common_assets/props_general/table01/table01.usd"
+    usd_path = assets_root_path + "/Isaac/Environments/Outdoor/Rivermark/dsready_content/nv_content/common_assets/props_general/table01/table01.usd"
     prim_path = "/World/Table"
 
     print("Adding table USD asset...")
@@ -76,9 +82,9 @@ def add_cube(index, position):
     """
     prim_path = f"/World/cube_{index}"  # Unique path for each cube
     add_reference_to_stage(
-        usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/nvidia_cube.usd",
-        # usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/MultiColorCube/multi_color_cube_instanceable.usd", # multicolor cube
-        # usd_path="http://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/4.2/Isaac/Props/Blocks/DexCube/dex_cube_instanceable.usd", # dex cube
+        usd_path= assets_root_path + "/Isaac/Props/Blocks/nvidia_cube.usd",
+        # usd_path= assets_root_path + "/Isaac/Props/Blocks/MultiColorCube/multi_color_cube_instanceable.usd", # multicolor cube
+        # usd_path= assets_root_path + "/Isaac/Props/Blocks/DexCube/dex_cube_instanceable.usd", # dex cube
         prim_path=prim_path,
     )
 
@@ -112,3 +118,4 @@ def set_the_scene():
         resolution=(1280, 720),
         frequency=30,
     )
+    set_robot_attach_table()
