@@ -4,15 +4,18 @@ simulation_app = SimulationApp({"headless": False})
 from lib.setup_import_standart import *
 from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup
+from lib.tasks.robot_look_table import robot_look_at_table
 
-# from lib.object_detect_lib.cube_detect import detect_edges_pic as detect_box
+print(
+    "----------------------------------------------------------------------------------------------------------------------------------------\n"
+)
 
-
-articulation_controller, my_controller_RMP = setup_robot()
+articulation_controller, my_controller_RMP, my_controller_PP = setup_robot()
 tasksetup.set_the_scene()
 
-
-
+print(
+    "\n----------------------------------------------------------------------------------------------------------------------------------------"
+)
 # 5-7. Tasks: Detect boxes, estimate grip points, pick and place
 reset_needed = False
 while simulation_app.is_running():
@@ -28,19 +31,22 @@ while simulation_app.is_running():
             reset_needed = False
         observations = world.get_observations()
 
-    #     # Example: Move to a specific target position
-        target_position = np.array([0.5, 0.5, 0.3])  # Define specific target position
-        target_orientation = np.array(
-            [0, 0, 0, 1]
-        )  # Define specific target orientation (quaternion)
-
-        actions = my_controller_RMP.forward(
-            target_end_effector_position=target_position,
-            target_end_effector_orientation=target_orientation,
+        look_at_table_task = robot_look_at_table(
+            articulation_controller, my_controller_RMP, my_controller_PP
         )
+    #     # Example: Move to a specific target position
+    # target_position = np.array([0.5, 0.5, 0.3])  # Define specific target position
+    # target_orientation = np.array(
+    #     [0, 0, 0, 1]
+    # )  # Define specific target orientation (quaternion)
 
-        # Execute actions
-        articulation_controller.apply_action(actions)
+    # actions = my_controller_RMP.forward(
+    #     target_end_effector_position=target_position,
+    #     target_end_effector_orientation=target_orientation,
+    # )
+
+    # # Execute actions
+    # articulation_controller.apply_action(actions)
 
 
 # 8. Close the simulation
