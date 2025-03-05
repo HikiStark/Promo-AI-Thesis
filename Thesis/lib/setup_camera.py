@@ -56,11 +56,11 @@ def add_camera_overhead():
     )
 
     # Initialize the camera
-    camera.initialize()
+    camera.initialize() 
 
-    pos_world = np.array([1, 1, 1])
-    quat_world = euler_angles_to_quat([0, -90, 0], degrees=True)
-    camera = Camera(position=pos_world, orientation=quat_world)
+    # pos_world = np.array([1, 1, 1])
+    # quat_world = euler_angles_to_quat([0, -90, 0], degrees=True)
+    # camera = Camera(position=pos_world, orientation=quat_world)
 
-    camera.get_world_pose()  # should give the same as pos_world and quat_world above
-    camera.set_world_pose(pos_world, quat_world)  # same as initialization
+    # camera.get_world_pose()  # should give the same as pos_world and quat_world above
+    # camera.set_world_pose(pos_world, quat_world)  # same as initialization
