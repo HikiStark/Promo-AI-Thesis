@@ -1,0 +1,45 @@
+Core Stuff Todo:@14d
+    1. Setting up the Project Environment:
+        ☐ Set the Camera Position
+        ☐ Set orientation of the camera towards the table working area 
+        (https://docs.omniverse.nvidia.com/isaacsim/latest/features/sensors_simulation/isaac_sim_sensors_camera.html#:~:text=Python%20Example#)
+        Pointing Camera to a object(https://docs.isaacsim.omniverse.nvidia.com/latest/replicator_tutorials/ext_replicator-agent/camera_control.html)
+        ☐ Set up live feed from the camera
+        ☐ Write a script to capture the live feed
+        ☐ Make sure the resolution of the camera is good enough
+        ☐ Add 3 more cameras to the setup
+        ☐ Add different types of visual feedback
+        ☐ Add Lidar sensor to the setup
+        ☐ Make sure the script from before captures all these live outputs correctly
+    2. Getting Parameters from Environment:
+        ☐ Make function that calculates and returns Parameters of the mid point of the object related to the WORLD.
+    Detection of the Cubes:
+        ☐ 
+        Detection in 2D:
+            ☐ 
+        Detection in 3D:
+        Parmeter Generation:
+            ☐ 
+    Objective Planning:
+        ☐ 
+    Path Planning:
+        ☐ 
+    Problem Avoidance:
+        ☐ 
+        Obstacle Avoidance:
+            ☐
+        Collision Avoidance:
+            ☐ 
+    Problem Detection Loop:
+        ☐  
+    Problem Solution Generation:
+        Solution Generation:
+            ☐
+        Generated Solutions efficiency Evaluation:
+            ☐ 
+        Solution Acceptance:
+            ☐ 
+    Problem Solution Execution:
+        ☐ 
+    Objective Completetion Check Loop:
+        ☐ 
