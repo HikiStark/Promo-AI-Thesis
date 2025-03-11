@@ -4,8 +4,8 @@ import numpy as np
 class detect_edges_pic():
 
     # Load the image
-    path_to_image = "E://NVIDIA//isaacsim//myscripts//Thesis//lib//object_detect_lib//resources//overheadangled.png"
-    path_to_image_2 = "E://NVIDIA//isaacsim//myscripts//Thesis//lib//object_detect_lib//resources//topdown.png"
+    path_to_image = "Thesis/lib/object_detect_lib/resources/overheadangled.png"
+    path_to_image_2 = "Thesis/lib/object_detect_lib/resources/topdown.png"
     img = cv2.imread(path_to_image)
 
     # Convert to grayscale and blur
