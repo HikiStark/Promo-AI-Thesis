@@ -1,6 +1,12 @@
 from isaacsim import SimulationApp
 
-simulation_app = SimulationApp({"headless": False})
+simulation_app = SimulationApp(
+    {
+        "headless": False,
+        "window_width": 2800,
+        "window_height": 1500,
+    }
+)
 from lib.setup_import_standart import *
 from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup

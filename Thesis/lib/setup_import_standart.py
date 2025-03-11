@@ -6,6 +6,7 @@ from omni.isaac.nucleus import get_assets_root_path
 
 from pxr import UsdPhysics, PhysxSchema, Usd, Sdf, UsdGeom, Gf 
 
+import omni.isaac.core
 from omni.isaac.core import World
 from omni.isaac.core.utils.stage import get_stage_units
 from omni.isaac.core.physics_context import PhysicsContext
