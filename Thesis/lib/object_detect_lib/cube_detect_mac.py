@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 
-class detect_edges_pic:
+def detect_edges_pic():
 
     # Get the directory of the current script
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -11,7 +11,7 @@ class detect_edges_pic:
     image_path = os.path.join(script_dir, "resources", "overheadangled.png")
     image_path_2 = os.path.join(script_dir, "resources", "topdown.png")
 
-    img = cv2.imread(image_path_2)
+    img = cv2.imread(image_path)
     # Convert to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -47,7 +47,22 @@ class detect_edges_pic:
         x, y, w, h = cv2.boundingRect(cnt)
         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+        # Calculate the center of the rectangle
+        center_x = x + w // 2
+        center_y = y + h // 2
+
+        # Draw a red circle (target point) at the center
+        cv2.circle(img, (center_x, center_y), 3, (0, 0, 455), -1)
+
     cv2.imshow("mask_closed", mask_closed)
+    cv2.waitKey(0)
     cv2.imshow("detected_cubes", img)
+
+
+def main():
+    detect_edges_pic()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
+main()
