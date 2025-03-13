@@ -36,23 +36,26 @@ def detect_edges_pic():
     for cnt in contours:
         area = cv2.contourArea(cnt)
         # Adjust this area threshold based on the size of the cubes in the image
-        if area < 500:
+        if area < 1000:  # Increased threshold to filter out small objects
             continue
 
         # Approximate the contour to a polygon
         epsilon = 0.02 * cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
 
-        # For demonstration, just draw a bounding box around the contour
-        x, y, w, h = cv2.boundingRect(cnt)
-        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        if len(approx) >= 4 and len(approx) <= 6:
+            # For demonstration, just draw a bounding box around the contour
+            x, y, w, h = cv2.boundingRect(cnt)
+            aspect_ratio = float(w) / h
+            if 0.8 < aspect_ratio < 1.2:
+                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-        # Calculate the center of the rectangle
-        center_x = x + w // 2
-        center_y = y + h // 2
+                # Calculate the center of the rectangle
+                center_x = x + w // 2
+                center_y = y + h // 2
 
-        # Draw a red circle (target point) at the center
-        cv2.circle(img, (center_x, center_y), 3, (0, 0, 455), -1)
+                # Draw a red circle (target point) at the center
+                cv2.circle(img, (center_x, center_y), 3, (0, 0, 455), -1)
 
     cv2.imshow("mask_closed", mask_closed)
     cv2.waitKey(0)
@@ -63,6 +66,5 @@ def main():
     detect_edges_pic()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
 
 main()

@@ -1,5 +1,6 @@
 Core Stuff Todo:@14d
     1. Setting up the Project Environment:
+        Sensor setup:
         ☐ Set the Camera Position
         ☐ Set orientation of the camera towards the table working area 
         (https://docs.omniverse.nvidia.com/isaacsim/latest/features/sensors_simulation/isaac_sim_sensors_camera.html#:~:text=Python%20Example#)
@@ -11,19 +12,37 @@ Core Stuff Todo:@14d
         ☐ Add different types of visual feedback
         ☐ Add Lidar sensor to the setup
         ☐ Make sure the script from before captures all these live outputs correctly
+        Environment setup:
+        ☐ Add QR code to the corner of the table to make sure the camera is oriented correctly
+        ☐ After getting the parameters of the table add red target point to the table for the required output
+________________________________________________________________________________________________________________________________________
     2. Getting Parameters from Environment:
         ☐ Make function that calculates and returns Parameters of the mid point of the object related to the WORLD.
-    Detection of the Cubes:
-        ☐ 
-        Detection in 2D:
+        ☐ Detect the Table
+        ☐ Get the parameters of the table
+        ☐ Get the parameters of the table in the WORLD
+        ☐ Estimate the 3D position of the table
+        ☐ Scan the table for the QR code to find the orientation of the table
+        ☐ Get the parameters of the QR code
+        Detection of the Cubes:
+            ✔ Detection of the cubes @done(25-03-13 15:38)
+            ✔ Isolate the cubes @done(25-03-13 15:39)
+            ✔ Add red dot to the middle of the cubes @done(25-03-13 15:39)
+            ☐ Get the parameters of the cubes
+            ☐ Get the parameters of the cubes in the WORLD
+            Detection in 3D:
+                ☐ estimate the 3D position of the cubes related to the table
+                ☐ estimate the 3D position of the target position related to the table
+            Parmeter Generation:
             ☐ 
-        Detection in 3D:
-        Parmeter Generation:
-            ☐ 
-    Objective Planning:
+________________________________________________________________________________________________________________________________________
+    3. Objective Planning:
         ☐ 
     Path Planning:
         ☐ 
+    
+    
+    
     Problem Avoidance:
         ☐ 
         Obstacle Avoidance:
