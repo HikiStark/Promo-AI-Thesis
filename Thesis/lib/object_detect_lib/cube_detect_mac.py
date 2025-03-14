@@ -15,21 +15,20 @@ class ImagePaths:
         self.topanglefar = os.path.join(script_dir, "resources", "topanglefar.png")
         self.topanglefarthreshold = 30
 
-def detect_edges_pic(image_path,thresholdd):
+def detect_edges_pic(image_path, thresholdd):
     img = cv2.imread(image_path)
     # Convert to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    threshold = thresholdd
-    # Define a color range for black (tweak if needed)
-    # The upper limit for 'V' might need to be raised/lowered depending on lighting.
-    lower_black = np.array([0, 0, 0])
-    upper_black = np.array([180, 255, threshold])
+    
+    v = np.median(hsv[:, :, 2])  # Compute the median brightness
+    lower_black = np.array([0, 0, max(0, v - 50)])
+    upper_black = np.array([180, 255, min(255, v + 50)])
 
     # Threshold to isolate black regions
     mask_black = cv2.inRange(hsv, lower_black, upper_black)
 
     # Morphological closing to fill small holes (like text)
-    kernel = np.ones((6, 6), np.uint8)
+    kernel = np.ones((3, 3), np.uint8)  # Reduced from (6,6) to avoid over-expansion
     mask_closed = cv2.morphologyEx(mask_black, cv2.MORPH_CLOSE, kernel, iterations=2)
 
     # Find external contours in the closed mask
@@ -41,7 +40,7 @@ def detect_edges_pic(image_path,thresholdd):
     for cnt in contours:
         area = cv2.contourArea(cnt)
         # Adjust this area threshold based on the size of the cubes in the image
-        if area < 4000:  # Increased threshold to filter out small objects
+        if area < 2000:  # Lowered from 4000
             continue
 
         # Approximate the contour to a polygon
@@ -61,6 +60,12 @@ def detect_edges_pic(image_path,thresholdd):
 
                 # Draw a red circle (center point) at the center
                 cv2.circle(img, (center_x, center_y), 3, (0, 0, 455), -1)
+
+    # Distance transform and watershed-like approach
+    dist_transform = cv2.distanceTransform(mask_closed, cv2.DIST_L2, 5)
+    _, sure_fg = cv2.threshold(dist_transform, 0.2 * dist_transform.max(), 255, 0)  # Adjusted threshold
+    sure_fg = np.uint8(sure_fg)
+    unknown = cv2.subtract(mask_closed, sure_fg)
 
     cv2.imshow("mask_closed", mask_closed)
     cv2.waitKey(0)
