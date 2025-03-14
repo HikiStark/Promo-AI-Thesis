@@ -121,6 +121,7 @@ def add_cubes():
 def set_the_scene():
     world.scene.add_default_ground_plane()  # add ground plane
     table = add_table()
+    add_qr_code_to_table(table_prim)
     add_cubes()
     set_robot_attach_table()
     camera_overhead = add_camera_overhead()
