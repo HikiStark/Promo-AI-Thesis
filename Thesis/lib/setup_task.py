@@ -48,6 +48,40 @@ def add_table():
 
     return prim
 
+# TODO: Change the table to an object class
+# TODO: Move add_table function under the class
+# TODO: Change all the occurances of the function so it works accordingly
+
+table_prim = "/World/Table"
+
+def add_qr_code_to_table(table_prim):
+    """
+    Add a QR code asset to a corner of the table.
+    This function creates a new prim under the table prim,
+    loads the QR code asset, and positions it at a desired offset.
+    """
+    # Create a unique prim path for the QR code as a child of the table
+    qr_code_path = table_prim.GetPath().AppendChild("QR_Code")
+    qr_usd_path = assets_root_path + "/Isaac/Props/QR_Code/qr_code.usd"  # Ensure this asset exists
+
+    print("Adding QR code USD asset to the table...")
+
+    # Add the QR code to the stage as a child of the table
+    add_reference_to_stage(usd_path=qr_usd_path, prim_path=str(qr_code_path))
+    
+    # Retrieve the QR code prim from the stage
+    qr_prim = get_prim_at_path(str(qr_code_path))
+    if not qr_prim.IsValid():
+        print(f"Error: QR Code prim at {qr_code_path} is invalid.")
+        return
+
+    # Set the translation to position the QR code at the table's corner.
+    # These offset values (e.g., (-0.3, 0.3, 0.05)) might need adjustment based on your table's dimensions.
+    UsdGeom.Xformable(qr_prim).AddTranslateOp().Set((-0.3, 0.3, 0.05))
+    print(f"QR Code added at {qr_code_path} with a corner offset.")
+
+    return qr_prim
+
 
 def add_cube(index, position):
     """
