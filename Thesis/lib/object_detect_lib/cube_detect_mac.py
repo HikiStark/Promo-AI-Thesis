@@ -2,29 +2,34 @@ import cv2
 import os
 import numpy as np
 
+class ImagePaths:
+    def __init__(self, script_dir):
+        self.overheadangled = os.path.join(script_dir, "resources", "overheadangled.png")
+        self.overheadangledthreshold = 50
+        self.topdown = os.path.join(script_dir, "resources", "topdown.png")
+        self.topdownthreshold = 40 
+        self.verysideangle = os.path.join(script_dir, "resources", "verysideangle.png")
+        self.verysideanglethreshold = 25
+        self.sideangle = os.path.join(script_dir, "resources", "sideangle.png")
+        self.sideanglethreshold = 25
+        self.topanglefar = os.path.join(script_dir, "resources", "topanglefar.png")
+        self.topanglefarthreshold = 30
 
-def detect_edges_pic():
-
-    # Get the directory of the current script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    # Construct the full path to the image
-    image_path = os.path.join(script_dir, "resources", "overheadangled.png")
-    image_path_2 = os.path.join(script_dir, "resources", "topdown.png")
-
+def detect_edges_pic(image_path,thresholdd):
     img = cv2.imread(image_path)
     # Convert to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
+    threshold = thresholdd
     # Define a color range for black (tweak if needed)
     # The upper limit for 'V' might need to be raised/lowered depending on lighting.
     lower_black = np.array([0, 0, 0])
-    upper_black = np.array([180, 255, 50])
+    upper_black = np.array([180, 255, threshold])
 
     # Threshold to isolate black regions
     mask_black = cv2.inRange(hsv, lower_black, upper_black)
 
     # Morphological closing to fill small holes (like text)
-    kernel = np.ones((5, 5), np.uint8)
+    kernel = np.ones((6, 6), np.uint8)
     mask_closed = cv2.morphologyEx(mask_black, cv2.MORPH_CLOSE, kernel, iterations=2)
 
     # Find external contours in the closed mask
@@ -36,11 +41,11 @@ def detect_edges_pic():
     for cnt in contours:
         area = cv2.contourArea(cnt)
         # Adjust this area threshold based on the size of the cubes in the image
-        if area < 1000:  # Increased threshold to filter out small objects
+        if area < 4000:  # Increased threshold to filter out small objects
             continue
 
         # Approximate the contour to a polygon
-        epsilon = 0.02 * cv2.arcLength(cnt, True)
+        epsilon = 0.08 * cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
 
         if len(approx) >= 4 and len(approx) <= 6:
@@ -54,17 +59,34 @@ def detect_edges_pic():
                 center_x = x + w // 2
                 center_y = y + h // 2
 
-                # Draw a red circle (target point) at the center
+                # Draw a red circle (center point) at the center
                 cv2.circle(img, (center_x, center_y), 3, (0, 0, 455), -1)
 
     cv2.imshow("mask_closed", mask_closed)
     cv2.waitKey(0)
     cv2.imshow("detected_cubes", img)
 
-
 def main():
-    detect_edges_pic()
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    paths = ImagePaths(script_dir)
+    image_paths = [
+        paths.overheadangled,
+        paths.topdown,
+        paths.verysideangle,
+        paths.sideangle,
+        paths.topanglefar
+    ]
+    image_threshold = [
+        paths.overheadangledthreshold,
+        paths.topdownthreshold,
+        paths.verysideanglethreshold,
+        paths.sideanglethreshold,
+        paths.topanglefarthreshold
+    ]
+    
+    for img_path, threshold in zip(image_paths, image_threshold):
+        detect_edges_pic(img_path, threshold)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 main()
