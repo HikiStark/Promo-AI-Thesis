@@ -20,9 +20,8 @@ def detect_edges_pic(image_path, thresholdd):
     # Convert to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
-    v = np.median(hsv[:, :, 2])  # Compute the median brightness
-    lower_black = np.array([0, 0, max(0, v - 50)])
-    upper_black = np.array([180, 255, min(255, v + 50)])
+    lower_black = np.array([0, 0, 0])
+    upper_black = np.array([180, 255, thresholdd])
 
     # Threshold to isolate black regions
     mask_black = cv2.inRange(hsv, lower_black, upper_black)
@@ -63,7 +62,7 @@ def detect_edges_pic(image_path, thresholdd):
 
     # Distance transform and watershed-like approach
     dist_transform = cv2.distanceTransform(mask_closed, cv2.DIST_L2, 5)
-    _, sure_fg = cv2.threshold(dist_transform, 0.2 * dist_transform.max(), 255, 0)  # Adjusted threshold
+    _, sure_fg = cv2.threshold(dist_transform, 0.5 * dist_transform.max(), 255, 0)  # Reverted threshold for better separation
     sure_fg = np.uint8(sure_fg)
     unknown = cv2.subtract(mask_closed, sure_fg)
 
