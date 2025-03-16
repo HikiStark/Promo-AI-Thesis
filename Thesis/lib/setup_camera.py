@@ -17,7 +17,8 @@ class OverheadCamera:
         # Define the table's prim path
         self.table_prim_path = "/World/Table"
         # Define camera position
-        self.camera_position = (0.75855, 1.6528, 2.44948)
+        # self.camera_position = (0.75855, 1.6528, 2.44948)
+        self.camera_position = (0.0, 0.0, 4.5)
         # Camera properties
         self.frequency = 30  # Capture frequency in Hz
         self.resolution = (1920, 1080)  # Resolution of the camera
