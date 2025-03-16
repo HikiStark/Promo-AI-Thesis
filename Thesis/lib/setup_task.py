@@ -8,51 +8,45 @@ if assets_root_path is None:
     carb.log_error("Could not find Isaac Sim assets folder")
     sys.exit()
 
-def add_table():
+class Table:
     """
-    Add a table USD asset to the stage and verify it.
+    Class for handling a table USD asset.
     """
-    # Define paths
-    usd_path = assets_root_path + "/Isaac/Environments/Outdoor/Rivermark/dsready_content/nv_content/common_assets/props_general/table01/table01.usd"
-    prim_path = "/World/Table"
+    def __init__(self):
+        # Define paths for the table asset.
+        self.usd_path = assets_root_path + "/Isaac/Environments/Outdoor/Rivermark/dsready_content/nv_content/common_assets/props_general/table01/table01.usd"
+        self.prim_path = "/World/Table"
+        self.prim = None
 
-    print("Adding table USD asset...")
-
-    # Add USD to the stage
-    add_reference_to_stage(usd_path=usd_path, prim_path=prim_path)
-
-    # Get the current stage
-    stage = get_current_stage()
-    print(f"Stage object: {stage}")
-
-    # Debug: Check if the stage object is valid
-    if not isinstance(stage, Usd.Stage):
-        raise RuntimeError("Error: Failed to get a valid stage object.")
-
-    # Get the prim at the specified path
-    sdf_path = Sdf.Path(prim_path)  # Convert prim_path to Sdf.Path
-    print(f"Retrieving prim at: {sdf_path}")
-
-    prim = stage.GetPrimAtPath(sdf_path)
-    print(f"Prim object: {prim}")
-
-    # Validate the prim
-    if not prim.IsValid():
-        print(f"Error: Prim at {prim_path} is not valid.")
-        return
-
-    print(f"Success: Table prim added at {prim_path}")
-
-    apply_collision(prim)
-    print(f"Success: Table prim added and collision applied at {sdf_path}")
-
-    return prim
-
-# TODO: Change the table to an object class
-# TODO: Move add_table function under the class
-# TODO: Change all the occurances of the function so it works accordingly
-
-table_prim = "/World/Table"
+    def add_to_stage(self):
+        """
+        Add the table USD asset to the stage, verify it, and apply collision.
+        """
+        print("Adding table USD asset...")
+        # Add USD to the stage
+        add_reference_to_stage(usd_path=self.usd_path, prim_path=self.prim_path)
+        
+        # Get the current stage
+        stage = get_current_stage()
+        print(f"Stage object: {stage}")
+        if not isinstance(stage, Usd.Stage):
+            raise RuntimeError("Error: Failed to get a valid stage object.")
+        
+        # Get the prim at the specified path
+        sdf_path = Sdf.Path(self.prim_path)  # Convert prim_path to Sdf.Path
+        print(f"Retrieving prim at: {sdf_path}")
+        self.prim = stage.GetPrimAtPath(sdf_path)
+        print(f"Prim object: {self.prim}")
+        
+        # Validate the prim
+        if not self.prim.IsValid():
+            print(f"Error: Prim at {self.prim_path} is not valid.")
+            return None
+        
+        print(f"Success: Table prim added at {self.prim_path}")
+        apply_collision(self.prim)
+        print(f"Success: Table prim added and collision applied at {sdf_path}")
+        return self.prim
 
 def add_qr_code_to_table():
     """
@@ -131,10 +125,15 @@ def add_cubes():
     add_cube(1, cube_positions)  # Pass unique index and position
 
 
-def set_the_scene():
+def set_the_scene():   
+    # Setup the scene by adding ground plane, table, QR code, cubes, and configuring the robot and camera.
     world.scene.add_default_ground_plane()  # add ground plane
-    table = add_table()                     # returns a Usd.Prim
-    add_qr_code_to_table()            # pass the Usd.Prim
-    # add_cubes()
+    
+    # Use the Table class to add the table to the stage
+    table_obj = Table()
+    table_prim = table_obj.add_to_stage()
+    
+    add_qr_code_to_table()  
+    add_cubes()
     set_robot_attach_table()
-    # camera_overhead = add_camera_overhead()
+    camera_overhead = add_camera_overhead()
