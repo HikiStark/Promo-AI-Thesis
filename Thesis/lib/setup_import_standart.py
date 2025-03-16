@@ -1,4 +1,5 @@
 import sys
+import logging
 import carb
 import argparse
 import numpy as np
