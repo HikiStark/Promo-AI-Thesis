@@ -1,7 +1,9 @@
 Core Stuff Todo:@14d
     1. Setting up the Project Environment:
         Sensor setup:
-        ☐ Set the Camera Position
+        ✔ Set the Camera Position @done(25-03-16 03:19)
+        ☐ Set the Camera Position 2
+        ✔ Set orientation of the camera towards the table working area @done(25-03-16 03:19)
         ☐ Set orientation of the camera towards the table working area 
         (https://docs.omniverse.nvidia.com/isaacsim/latest/features/sensors_simulation/isaac_sim_sensors_camera.html#:~:text=Python%20Example#)
         Pointing Camera to a object(https://docs.isaacsim.omniverse.nvidia.com/latest/replicator_tutorials/ext_replicator-agent/camera_control.html)
@@ -13,7 +15,7 @@ Core Stuff Todo:@14d
         ☐ Add Lidar sensor to the setup
         ☐ Make sure the script from before captures all these live outputs correctly
         Environment setup:
-        ☐ Add QR code to the corner of the table to make sure the camera is oriented correctly
+        ✔ Add QR code to the corner of the table to make sure the camera is oriented correctly @done(25-03-16 03:19)
         ☐ After getting the parameters of the table add red target point to the table for the required output
 ________________________________________________________________________________________________________________________________________
     2. Getting Parameters from Environment:
