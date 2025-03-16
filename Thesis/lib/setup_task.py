@@ -115,7 +115,9 @@ class Cube:
         self.prim_path: str = f"/World/cube_{index}"
         self.usd_path: str = (
             assets_root_path
-            + "/Isaac/Props/Blocks/MultiColorCube/multi_color_cube_instanceable.usd"
+            + "/Isaac/Props/Blocks/MultiColorCube/multi_color_cube_instanceable.usd"  # multicolor cube
+            # assets_root_path + "/Isaac/Props/Blocks/nvidia_cube.usd" # nvidia cube
+            # assets_root_path + "/Isaac/Props/Blocks/DexCube/dex_cube_instanceable.usd" # dex cube
         )
         self.prim: Optional[Usd.Prim] = None
 
