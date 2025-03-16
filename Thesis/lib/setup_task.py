@@ -54,26 +54,42 @@ def add_table():
 
 table_prim = "/World/Table"
 
-def add_qr_code_to_table(table_prim):
+def add_qr_code_to_table():
     """
     Add a QR code asset to a corner of the table (a Usd.Prim),
     then position it at a desired offset.
     """
     # Create a unique prim path for the QR code as a child of the table
-    qr_code_path = table_prim.GetPath().AppendChild("QR_Code")
-    qr_usd_path = assets_root_path + "/Isaac/Props/QR_Code/qr_code.usd"
+    # qr_code_path = table_prim.GetPath().AppendChild("QR_board")
+    prim_path = f"/World/QR_board" 
+    qr_usd_path = "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/object_detect_lib/resources/checkerboard_2.usdz"
 
     print("Adding QR code USD asset to the table...")
-    add_reference_to_stage(usd_path=qr_usd_path, prim_path=str(qr_code_path))
+    add_reference_to_stage(usd_path=qr_usd_path, prim_path=prim_path)
     
-    qr_prim = get_prim_at_path(str(qr_code_path))
+    qr_prim = get_prim_at_path(prim_path)
+    print("qr_prim: ", qr_prim)
     if not qr_prim.IsValid():
-        print(f"Error: QR Code prim at {qr_code_path} is invalid.")
+        print(f"Error: QR Code prim at {prim_path} is invalid.")
         return
 
     # Position the QR code (tweak offsets as needed)
-    UsdGeom.Xformable(qr_prim).AddTranslateOp().Set((-0.3, 0.3, 0.05))
-    print(f"QR Code added at {qr_code_path} with a corner offset.")
+    position = (0.34, 0.35, 0.637)  # Offset from the table corner
+    UsdGeom.Xformable(qr_prim).AddTranslateOp().Set(position)
+    print(f"QR Code added at {prim_path} with a corner offset.")
+
+    # Wrap the prim for transformation operations
+    xformable = UsdGeom.Xformable(qr_prim)
+
+    # Scale down the object (e.g., to half size in all dimensions)
+    scale_op = xformable.AddScaleOp()
+    scale_op.Set(Gf.Vec3f(0.0024, 0.0024, 0.0024))
+
+    # Rotate the object 90 degrees about the x-axis.
+    # The API uses degrees, so you can simply set 90.
+    rotate_x_op = xformable.AddRotateXOp()
+    rotate_x_op.Set(90)
+    print(f"Applied scale and 90° x-axis rotation to prim: {prim_path}")
 
     return qr_prim
 
@@ -88,8 +104,8 @@ def add_cube(index, position):
     """
     prim_path = f"/World/cube_{index}"  # Unique path for each cube
     add_reference_to_stage(
-        usd_path= assets_root_path + "/Isaac/Props/Blocks/nvidia_cube.usd",
-        # usd_path= assets_root_path + "/Isaac/Props/Blocks/MultiColorCube/multi_color_cube_instanceable.usd", # multicolor cube
+        # usd_path= assets_root_path + "/Isaac/Props/Blocks/nvidia_cube.usd",
+        usd_path= assets_root_path + "/Isaac/Props/Blocks/MultiColorCube/multi_color_cube_instanceable.usd", # multicolor cube
         # usd_path= assets_root_path + "/Isaac/Props/Blocks/DexCube/dex_cube_instanceable.usd", # dex cube
         prim_path=prim_path,
     )
@@ -108,15 +124,17 @@ def add_cubes():
     """
     Add multiple cubes at different positions.
     """
-    cube_positions = [(0.0, 0.0, 0.825), (0.1, 0.1, 0.825), (-0.1, 0.1, 0.825)]
-    for i, pos in enumerate(cube_positions):
-        add_cube(i, pos)  # Pass unique index and position
+    cube_positions = (0.0, 0.0, 0.9)
+    # cube_positions = [(0.0, 0.0, 0.825), (0.1, 0.1, 0.825), (-0.1, 0.1, 0.825)]
+    # for i, pos in enumerate(cube_positions):
+    #     add_cube(i, pos)  # Pass unique index and position
+    add_cube(1, cube_positions)  # Pass unique index and position
 
 
 def set_the_scene():
     world.scene.add_default_ground_plane()  # add ground plane
     table = add_table()                     # returns a Usd.Prim
-    add_qr_code_to_table(table)            # pass the Usd.Prim
-    add_cubes()
+    add_qr_code_to_table()            # pass the Usd.Prim
+    # add_cubes()
     set_robot_attach_table()
-    camera_overhead = add_camera_overhead()
+    # camera_overhead = add_camera_overhead()
