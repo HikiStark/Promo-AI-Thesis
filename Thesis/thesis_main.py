@@ -1,5 +1,6 @@
 from isaacsim import SimulationApp
 
+# Create and configure the simulation app.
 simulation_app = SimulationApp(
     {
         "headless": False,
@@ -7,53 +8,59 @@ simulation_app = SimulationApp(
         "window_height": 1500,
     }
 )
+
+# Import required modules after initializing the simulation app.
 from lib.setup_import_standart import *
 from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup
 from lib.tasks.robot_look_table import robot_look_at_table
 
-print(
-    "----------------------------------------------------------------------------------------------------------------------------------------\n"
-)
+# Print a divider line.
+print("-" * 120 + "\n")
 
+# Setup robot controllers and scene.
 articulation_controller, my_controller_RMP, my_controller_PP = setup_robot()
 tasksetup.set_the_scene()
 
-print(
-    "\n----------------------------------------------------------------------------------------------------------------------------------------"
-)
-# 5-7. Tasks: Detect boxes, estimate grip points, pick and place
-reset_needed = False
-while simulation_app.is_running():
-    world.step(render=True)
+print("\n" + "-" * 120)
 
-    if world.is_stopped() and not reset_needed:
-        reset_needed = True
+# Define the main function.
+def main() -> None:
+    # Main simulation loop.
+    reset_needed = False
+    while simulation_app.is_running():
+        # Step the simulation with rendering enabled.
+        world.step(render=True)
 
-    if world.is_playing():
-        if reset_needed:
-            world.reset()
-            my_controller_RMP.reset()
-            reset_needed = False
-        observations = world.get_observations()
+        # Check if simulation is stopped to mark for reset.
+        if world.is_stopped() and not reset_needed:
+            reset_needed = True
 
-        look_at_table_task = robot_look_at_table(
-            articulation_controller, my_controller_RMP, my_controller_PP
-        )
-    #     # Example: Move to a specific target position
-    # target_position = np.array([0.5, 0.5, 0.3])  # Define specific target position
-    # target_orientation = np.array(
-    #     [0, 0, 0, 1]
-    # )  # Define specific target orientation (quaternion)
+        if world.is_playing():
+            # If a reset is needed, reset the simulation and the robot controller.
+            if reset_needed:
+                world.reset()
+                my_controller_RMP.reset()
+                reset_needed = False
 
-    # actions = my_controller_RMP.forward(
-    #     target_end_effector_position=target_position,
-    #     target_end_effector_orientation=target_orientation,
-    # )
+            # Retrieve current observations (for potential use).
+            observations = world.get_observations()
 
-    # # Execute actions
-    # articulation_controller.apply_action(actions)
+            # Execute the task where the robot looks at the table.
+            robot_look_at_table(
+                articulation_controller, my_controller_RMP, my_controller_PP
+            )
+
+            # Example: Move to a specific target position
+            # target_position = np.array([0.5, 0.5, 0.3])  # Define specific target position
+            # target_orientation = np.array([0, 0, 0, 1])  # Define specific target orientation (quaternion)
+            # actions = my_controller_RMP.forward(target_end_effector_position=target_position, target_end_effector_orientation=target_orientation,)
+            # # Execute actions
+            # articulation_controller.apply_action(actions)
+
+    # Close the simulation when finished.
+    simulation_app.close()
 
 
-# 8. Close the simulation
-simulation_app.close()
+if __name__ == "__main__":
+    main()

@@ -5,6 +5,9 @@ from omni.isaac.sensor import Camera
 from scipy.spatial.transform import Rotation as R
 import omni.isaac.core.utils.numpy.rotations as rot_utils
 
+from lib.camera_lib.cam_test import listen_to_camera_feed as lis_cam
+# from lib.camera_lib.cam_test import test_this
+
 
 class OverheadCamera:
     """
@@ -22,6 +25,8 @@ class OverheadCamera:
         # Camera properties
         self.frequency = 30  # Capture frequency in Hz
         self.resolution = (1920, 1080)  # Resolution of the camera
+        # We'll store the camera object here:
+        self.camera = None
 
     def get_table_position(self):
         """
@@ -94,7 +99,7 @@ class OverheadCamera:
         print("Quaternion Orientation:", orientation_quat)
         return orientation_quat
 
-    def create_camera(self) -> None:
+    def create_camera(self):
         """
         Create and initialize the overhead camera.
         """
@@ -105,7 +110,7 @@ class OverheadCamera:
         orientation_quat = self.compute_orientation()
 
         # Create the camera
-        camera = Camera(
+        self.camera = Camera(
             prim_path=self.camera_path,
             position=self.camera_position,
             orientation=orientation_quat,
@@ -113,7 +118,7 @@ class OverheadCamera:
             resolution=self.resolution,  # Resolution of the camera
         )
         # Initialize the camera
-        camera.initialize()
+        self.camera.initialize()
 
 
 def add_camera_overhead():
@@ -122,6 +127,8 @@ def add_camera_overhead():
     """
     overhead_camera = OverheadCamera()
     overhead_camera.create_camera()
+    # Now pass overhead_camera.camera (the actual Camera object) instead of overhead_camera
+    lis_cam(overhead_camera.camera)
 
 
 if __name__ == "__main__":
