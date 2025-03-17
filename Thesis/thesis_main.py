@@ -20,7 +20,7 @@ print("-" * 120 + "\n")
 
 # Setup robot controllers and scene.
 articulation_controller, my_controller_RMP, my_controller_PP = setup_robot()
-tasksetup.set_the_scene()
+tasksetup.set_the_scene(simulation_app)
 
 print("\n" + "-" * 120)
 

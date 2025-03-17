@@ -168,24 +168,29 @@ class Scene:
         # for i, pos in enumerate(cube_positions):
         #     self.add_cube(i, pos)  # Pass unique index and position
 
-    def setup_camera_and_robot(self) -> None:
+    def setup_robot(self) -> None:
         set_robot_attach_table()
-        add_camera_overhead()
         logger.info("Robot and camera setup completed.")
 
-    def setup(self) -> None:
+    def add_camera(self, sim_app) -> None:
+        add_camera_overhead(sim_app)
+        logger.info("Overhead camera added")
+
+    def setup(self, sim_app) -> None:
         self.add_ground_plane()
         self.add_table()
         self.add_qr_code()
         self.add_cubes()
-        self.setup_camera_and_robot()
+        self.setup_robot()
+        self.add_camera(sim_app)
         logger.info("Scene setup completed.")
 
 
-def set_the_scene() -> None:
+def set_the_scene(sim_app) -> None:
     # Main function to initialize and setup the scene.
+    print("Setting up the scene..."+ str(sim_app))
     scene = Scene()
-    scene.setup()
+    scene.setup(sim_app)
 
 
 if __name__ == "__main__":

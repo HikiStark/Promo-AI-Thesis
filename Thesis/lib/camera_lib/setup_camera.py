@@ -1,99 +1,34 @@
 import math
 import numpy as np
+import cv2
+import numpy as np
+import omni.isaac.core.utils.nucleus as nucleus
 from lib.setup_import_standart import *
 from omni.isaac.sensor import Camera
 from scipy.spatial.transform import Rotation as R
 import omni.isaac.core.utils.numpy.rotations as rot_utils
 
-from lib.camera_lib.cam_test import listen_to_camera_feed as lis_cam
-# from lib.camera_lib.cam_test import test_this
+# import lib.camera_lib.cam_test as cam_test
 
-
-class OverheadCamera:
-    """
-    Class for setting up an overhead camera in the scene.
-    """
-
+class OverheadCamera:  # Class to create an overhead camera
     def __init__(self) -> None:
-        # Define the camera's path
-        self.camera_path = "/World/Camera_overhead_1"
-        # Define the table's prim path
-        self.table_prim_path = "/World/Table"
-        # Define camera position
-        # self.camera_position = (0.75855, 1.6528, 2.44948)
-        self.camera_position = (0.0, 0.0, 4.5)
+        self.camera_path = "/World/Camera_overhead_1"  # Define the camera's path
+        self.table_prim_path = "/World/Table"  # Define the table's prim path
+        self.camera_position = (0.0, 0.0, 4.5)  # Define camera position
         # Camera properties
         self.frequency = 30  # Capture frequency in Hz
         self.resolution = (1920, 1080)  # Resolution of the camera
-        # We'll store the camera object here:
-        self.camera = None
+        self.enable_rgb = True  # Enable RGB capture
+        self.camera = None  # Camera object
 
-    def get_table_position(self):
-        """
-        Retrieve the table's position from the stage.
-        """
-        # Get the table's position
+    def get_table_position(self):  # Get the table's position
         table_prim = get_prim_at_path(self.table_prim_path)
         table_position = table_prim.GetAttribute("xformOp:translate").Get()
         return table_position
 
-    def compute_direction_vector(self):
-        """
-        Calculate direction vector from camera to table and normalize it.
-        """
-        table_position = self.get_table_position()
-        # Calculate direction vector from camera to table
-        direction_vector = (
-            table_position[0] - self.camera_position[0],
-            table_position[1] - self.camera_position[1],
-            table_position[2] - self.camera_position[2],
-        )
-        # Normalize the direction vector
-        norm = math.sqrt(sum([coord**2 for coord in direction_vector]))
-        direction_vector = tuple(coord / norm for coord in direction_vector)
-        return direction_vector
-
     def compute_orientation(self):
-        """
-        Compute the quaternion for the camera's orientation.
-
-        The commented out section shows an alternative method for computing the orientation.
-        """
-        # Alternative approach commented out:
-        # z_axis = direction_vector
-        # up_vector = (0, 0, 1)  # Assuming the up vector is along the z-axis
-        # x_axis = (
-        #     up_vector[1] * z_axis[2] - up_vector[2] * z_axis[1],
-        #     up_vector[2] * z_axis[0] - up_vector[0] * z_axis[2],
-        #     up_vector[0] * z_axis[1] - up_vector[1] * z_axis[0],
-        # )
-        # norm_x = math.sqrt(sum([coord**2 for coord in x_axis]))
-        # x_axis = tuple(coord / norm_x for coord in x_axis)
-        # y_axis = (
-        #     z_axis[1] * x_axis[2] - z_axis[2] * x_axis[1],
-        #     z_axis[2] * x_axis[0] - z_axis[0] * x_axis[2],
-        #     z_axis[0] * x_axis[1] - z_axis[1] * x_axis[0],
-        # )
-        #
-        # x_axis = -49.0
-        # y_axis = 17.0
-        # z_axis = 166.0
-
-        # Here, use fixed values for euler angles or the quaternion
-        x_axis = 65.01
-        y_axis = -46.20
-        z_axis = 94.59
-
-        quat = [0.37118, 0.57839, 0.13886, 0.71303]
-
-        # eu_ang = np.array([x_axis, y_axis, z_axis])
+        # Compute the quaternion for the camera's orientation. The commented out section shows an alternative method for computing the orientation.
         eu_ang = np.array([0, 90, 0])
-
-        # rotation_matrix = [x_axis, y_axis, z_axis]
-        # rotation = R.from_matrix(rotation_matrix)
-        # orientation_quat = rotation.as_quat()
-        # orientation_quat = quat
-
         # Compute quaternion using Euler angles (in degrees)
         orientation_quat = rot_utils.euler_angles_to_quats(eu_ang, degrees=True)
         print("Quaternion Orientation:", orientation_quat)
@@ -116,19 +51,37 @@ class OverheadCamera:
             orientation=orientation_quat,
             frequency=self.frequency,  # Capture frequency in Hz
             resolution=self.resolution,  # Resolution of the camera
+            # enable_rgb=self.enable_rgb,  # Enable RGB capture
+            # annotation_types=["rgb"],
         )
         # Initialize the camera
         self.camera.initialize()
+        self.camera.add_motion_vectors_to_frame()
 
 
-def add_camera_overhead():
-    """
-    Function to add an overhead camera to the scene.
-    """
+def add_camera_overhead(simulation_app):
     overhead_camera = OverheadCamera()
     overhead_camera.create_camera()
-    # Now pass overhead_camera.camera (the actual Camera object) instead of overhead_camera
-    lis_cam(overhead_camera.camera)
+    camera_obj = overhead_camera.camera
+    while simulation_app.is_running():
+        # Step the simulation
+        simulation_app.update()
+        rgba = camera_obj.get_rgba()
+        if rgba is not None:
+                # Convert RGBA -> BGR for OpenCV
+                # rgba shape is [height, width, 4], type float32 or uint8 (depending on setup).
+                # Make sure it is in the correct data type for cv2. For example, if it's float32, scale to [0..255].
+                if rgba.dtype == np.float32:
+                    rgba = (rgba * 255).astype(np.uint8)
+
+                bgr = cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGR)
+
+                # Display in a window
+                cv2.imshow("Camera Feed", bgr)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+    # cam_test.read_camera_data(camera_obj)
+    return overhead_camera
 
 
 if __name__ == "__main__":
