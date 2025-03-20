@@ -1,22 +1,20 @@
 from isaacsim import SimulationApp
 
 # Create and configure the simulation app.
-# simulation_app = SimulationApp(
-#     {
-#         "headless": False,
-#         "window_width": 2800,
-#         "window_height": 1500,
-#     }
-# )
-simulation_app = SimulationApp({"headless": False})
-
-
+simulation_app = SimulationApp(
+    {
+        "headless": False,
+        "window_width": 2800,
+        "window_height": 1500,
+    }
+)
 # Import required modules after initializing the simulation app.
 from lib.setup_import_standart import *
 from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup
 from lib.tasks.robot_look_table import robot_look_at_table
 from lib.camera_lib.setup_camera import OverheadCamera as cam_ov
+
 
 # Print a divider line.
 print("-" * 120 + "\n")
@@ -30,6 +28,11 @@ print("camera_instance:", camera_instance)
 
 print("\n" + "-" * 120)
 
+# Start publishing camera frames once
+# Start publishing camera frames over ZMQ.
+# camera_instance.save_camera_frames()
+# camera_instance.setup_in_viewport()
+camera_instance.start_publishing()
 
 # Define the main function.
 def main() -> None:
@@ -39,7 +42,6 @@ def main() -> None:
         # Step the simulation with rendering enabled.
         world.step(render=True)
 
-        # camera_instance.save_camera_frames()
         # Check if simulation is stopped to mark for reset.
         if world.is_stopped() and not reset_needed:
             reset_needed = True
@@ -51,7 +53,6 @@ def main() -> None:
                 my_controller_RMP.reset()
                 reset_needed = False
 
-            camera_instance.start_publishing()  # Start publishing camera frames over ZMQ.
 
             # Retrieve current observations (for potential use).
             observations = world.get_observations()

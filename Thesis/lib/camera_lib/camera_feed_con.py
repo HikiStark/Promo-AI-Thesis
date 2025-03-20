@@ -4,7 +4,6 @@ import time
 import threading
 import numpy as np
 from omni.isaac.sensor import Camera
-import omni.isaac.core.utils.numpy.rotations as rot_utils
 
 # Set up ZMQ publisher
 context = zmq.Context()
@@ -15,10 +14,8 @@ socket.bind("tcp://*:5555")  # Listen on port 5555
 def publish_camera_frames(camera):
     while True:
         rgba = camera.get_rgba()
-        # print("rgba:")
         if rgba is not None and rgba.size > 0:
             # If the frame is in float format, convert to uint8
-            # print("rgba.dtype:")
             if rgba.dtype == np.float32:
                 rgba = (rgba * 255).astype(np.uint8)
             # Convert RGBA to BGR since OpenCV uses BGR ordering
@@ -29,13 +26,11 @@ def publish_camera_frames(camera):
             if ret:
                 try:
                     # Use non-blocking send; if the subscriber is slow, you may drop frames
-                    # print("encoded.tobytes():")
                     socket.send(encoded.tobytes(), zmq.NOBLOCK)
                 except zmq.Again:
                     print("Warning: Dropped frame due to high load or slow subscriber.")
             else:
                 print("Warning: Frame encoding failed.")
-        print("Frame sent")
 
         # Step simulation or add your simulation stepping logic here.
         # Sleep to simulate ~30 FPS; adjust as needed.
