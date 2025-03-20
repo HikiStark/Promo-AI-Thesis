@@ -28,10 +28,9 @@ print("camera_instance:", camera_instance)
 
 print("\n" + "-" * 120)
 
+# camera_instance.save_camera_frames()
 # Start publishing camera frames once
 # Start publishing camera frames over ZMQ.
-# camera_instance.save_camera_frames()
-# camera_instance.setup_in_viewport()
 camera_instance.start_publishing()
 
 # Define the main function.

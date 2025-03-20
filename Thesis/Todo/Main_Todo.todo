@@ -7,9 +7,9 @@ Core Stuff Todo:@14d
         ☐ Set orientation of the camera towards the table working area 
         (https://docs.omniverse.nvidia.com/isaacsim/latest/features/sensors_simulation/isaac_sim_sensors_camera.html#:~:text=Python%20Example#)
         Pointing Camera to a object(https://docs.isaacsim.omniverse.nvidia.com/latest/replicator_tutorials/ext_replicator-agent/camera_control.html)
-        ☐ Set up live feed from the camera
-        ☐ Write a script to capture the live feed
-        ☐ Make sure the resolution of the camera is good enough
+        ✔ Set up live feed from the camera @done(25-03-20 05:34)
+        ✔ Write a script to capture the live feed @done(25-03-20 05:34)
+        ✔ Make sure the resolution of the camera is good enough @done(25-03-20 05:34)
         ☐ Add 3 more cameras to the setup
         ☐ Add different types of visual feedback
         ☐ Add Lidar sensor to the setup
