@@ -1,7 +1,7 @@
 import cv2
 import zmq
-import numpy as np
 import time
+import numpy as np
 
 # Set up ZMQ subscriber
 context = zmq.Context()

@@ -30,6 +30,7 @@ print("camera_instance:", camera_instance)
 
 print("\n" + "-" * 120)
 
+
 # Define the main function.
 def main() -> None:
     # Main simulation loop.
@@ -38,7 +39,7 @@ def main() -> None:
         # Step the simulation with rendering enabled.
         world.step(render=True)
 
-        camera_instance.save_camera_frames()
+        # camera_instance.save_camera_frames()
         # Check if simulation is stopped to mark for reset.
         if world.is_stopped() and not reset_needed:
             reset_needed = True
@@ -50,6 +51,7 @@ def main() -> None:
                 my_controller_RMP.reset()
                 reset_needed = False
 
+            camera_instance.start_publishing()  # Start publishing camera frames over ZMQ.
 
             # Retrieve current observations (for potential use).
             observations = world.get_observations()
