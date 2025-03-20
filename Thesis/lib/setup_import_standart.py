@@ -32,6 +32,8 @@ from omni.isaac.universal_robots.controllers.pick_place_controller import (
     PickPlaceController,
 )
 
+import omni.isaac.core.utils.numpy.rotations as rot_utils
+
 world = World(stage_units_in_meters=1.0)
 
 def apply_collision(prim):

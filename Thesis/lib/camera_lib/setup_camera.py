@@ -1,15 +1,15 @@
 import os
+import cv2
 import math
 import numpy as np
-import cv2
-import numpy as np
+import omni.kit
+import omni.kit.viewport.utility
 import omni.isaac.core.utils.nucleus as nucleus
-from lib.setup_import_standart import *
+import omni.isaac.core.utils.numpy.rotations as rot_utils
 from omni.isaac.sensor import Camera
 from scipy.spatial.transform import Rotation as R
-import omni.isaac.core.utils.numpy.rotations as rot_utils
-
-# import lib.camera_lib.cam_test as cam_test
+from lib.setup_import_standart import *
+from lib.camera_lib.camera_feed_con import publish_camera_frames, start_publisher
 
 save_dir = "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/camera_lib/cam_out"
 os.makedirs(save_dir, exist_ok=True)
@@ -86,6 +86,31 @@ class OverheadCamera:  # Class to create an overhead camera
             else:
                 print("No RGBA data retrieved.")
                 break
+    
+    def setup_in_viewport(self):
+        """
+        Configure an Isaac Sim viewport to view the camera at `camera_prim_path`.
+        """
+        camera_prim_path = self.camera_path
+        # Create a new viewport window or retrieve an existing one
+        viewport_window = omni.kit.viewport.utility.create_viewport_window("SensorCam")
+
+        # Get the low-level viewport API
+        viewport_api = viewport_window.viewport_api
+
+        # Set the viewport resolution (optional)
+        viewport_api.resolution = (960, 540)
+
+        # Assign this viewport to use the given camera prim
+        viewport_api.set_active_camera(camera_prim_path)
+
+
+    def start_publishing(self):
+        """
+        Start publishing camera frames over ZMQ.
+        """
+        start_publisher(self.camera)
+        # publish_camera_frames(self.camera)
 
 
 

@@ -1,69 +1,48 @@
-"""
-Below is a Python script for retrieving the camera output from an Isaac Sim scene.
-Replace /World/Camera_overhead_1 with the correct camera path as needed.
-Make sure that the Isaac Sim Python environment is set up.
-"""
+import zmq
+import cv2
+import numpy as np
+from omni.isaac.sensor import Camera  # Ensure you have the correct camera module import
+import time
 
-import omni
-from omni.isaac.core import SimulationContext
-from omni.isaac.core.utils.stage import get_current_stage
-# from omni.isaac.core.robots.robot import Robot
-from omni.isaac.sensor import Camera
-
-# A sample function to demonstrate how to retrieve camera images
-
-# For this script, ensure you have the Isaac Sim python environment or the kit environment active.
-# The usage here might differ slightly depending on your exact environment.
+# Set up ZMQ publisher
+context = zmq.Context()
+socket = context.socket(zmq.PUB)
+socket.bind("tcp://*:5555")  # Listen on port 5555
 
 
-def read_camera_data(camera_object):
-    # Initialize a simulation context
-    sim_context = SimulationContext()
+def publish_camera_frames(camera: Camera):
+    while True:
+        rgba = camera.get_rgba()
+        if rgba is not None and rgba.size > 0:
+            # If the frame is in float format, convert to uint8
+            if rgba.dtype == np.float32:
+                rgba = (rgba * 255).astype(np.uint8)
+            # Convert RGBA to BGR since OpenCV uses BGR ordering
+            bgr = cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGR)
 
-    # Retrieve the current stage
-    stage = get_current_stage()
+            # Encode the frame as JPEG to compress data before sending
+            ret, encoded = cv2.imencode(".jpg", bgr)
+            if ret:
+                try:
+                    # Use non-blocking send; if the subscriber is slow, you may drop frames
+                    socket.send(encoded.tobytes(), zmq.NOBLOCK)
+                except zmq.Again:
+                    print("Warning: Dropped frame due to high load or slow subscriber.")
+            else:
+                print("Warning: Frame encoding failed.")
 
-    # Optionally, you could load your scene or ensure it is already loaded
-    # stage.SaveAs("my_scene.usd") # For example
-
-    # Create the camera handle if not already created
-    camera_path = camera_object
-    print("Camera Path:", camera_path)
-    camera = Camera(prim_path=camera_path, frequency=20)
-
-    # Start the simulation
-    sim_context.play()
-
-    # Wait a few frames so that the simulator can generate data
-    for _ in range(10):
-        sim_context.step()
-
-    # Get RGBA data
-    rgba = camera.get_rgb()
-    if rgba is not None:
-        print("RGBA Data Type:", type(rgba))
-        print("RGBA Data Shape:", rgba.shape)
-    else:
-        print("No RGBA data retrieved.")
-    
-    print("RGBA Data:", rgba)
-    # # Optionally get depth data
-    # depth = camera.get_depth()
-    # if depth is not None:
-    #     print("Depth Data Shape:", depth.shape)
-    # else:
-    #     print("No depth data retrieved.")
-
-    # # Optionally get point cloud data
-    # pointcloud = camera.get_point_cloud()
-    # if pointcloud is not None:
-    #     print("Point Cloud Data Shape:", pointcloud.shape)
-    # else:
-    #     print("No point cloud data retrieved.")
-
-    sim_context.stop()
+        # Step simulation or add your simulation stepping logic here.
+        # Sleep to simulate ~30 FPS; adjust as needed.
+        time.sleep(0.033)
 
 
-# Example usage
 if __name__ == "__main__":
-    read_camera_data("/World/Camera_overhead_1")
+    # Replace with your actual camera initialization if needed
+    camera = Camera()
+    try:
+        publish_camera_frames(camera)
+    except KeyboardInterrupt:
+        print("Publisher stopped by user.")
+    finally:
+        socket.close()
+        context.term()
