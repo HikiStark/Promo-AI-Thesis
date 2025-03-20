@@ -1,26 +1,32 @@
 from isaacsim import SimulationApp
 
 # Create and configure the simulation app.
-simulation_app = SimulationApp(
-    {
-        "headless": False,
-        "window_width": 2800,
-        "window_height": 1500,
-    }
-)
+# simulation_app = SimulationApp(
+#     {
+#         "headless": False,
+#         "window_width": 2800,
+#         "window_height": 1500,
+#     }
+# )
+simulation_app = SimulationApp({"headless": False})
+
 
 # Import required modules after initializing the simulation app.
 from lib.setup_import_standart import *
 from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup
 from lib.tasks.robot_look_table import robot_look_at_table
+from lib.camera_lib.setup_camera import OverheadCamera as cam_ov
 
 # Print a divider line.
 print("-" * 120 + "\n")
 
 # Setup robot controllers and scene.
 articulation_controller, my_controller_RMP, my_controller_PP = setup_robot()
-tasksetup.set_the_scene(simulation_app)
+scene = tasksetup.set_the_scene(simulation_app)
+# scene now has: scene.camera (the OverheadCamera instance)
+camera_instance = scene.camera
+print("camera_instance:", camera_instance)
 
 print("\n" + "-" * 120)
 
@@ -32,6 +38,7 @@ def main() -> None:
         # Step the simulation with rendering enabled.
         world.step(render=True)
 
+        camera_instance.save_camera_frames()
         # Check if simulation is stopped to mark for reset.
         if world.is_stopped() and not reset_needed:
             reset_needed = True
@@ -42,6 +49,7 @@ def main() -> None:
                 world.reset()
                 my_controller_RMP.reset()
                 reset_needed = False
+
 
             # Retrieve current observations (for potential use).
             observations = world.get_observations()

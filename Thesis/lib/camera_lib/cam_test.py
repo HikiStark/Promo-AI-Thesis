@@ -27,7 +27,7 @@ def read_camera_data(camera_object):
     # stage.SaveAs("my_scene.usd") # For example
 
     # Create the camera handle if not already created
-    camera_path = camera_object.
+    camera_path = camera_object
     print("Camera Path:", camera_path)
     camera = Camera(prim_path=camera_path, frequency=20)
 

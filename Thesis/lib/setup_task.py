@@ -143,6 +143,7 @@ class Scene:
         self.table = Table()
         self.qr_code = QRCode()
         self.cubes: List[Cube] = []
+        self.camera = None
 
     def add_ground_plane(self) -> None:
         world.scene.add_default_ground_plane()
@@ -173,7 +174,7 @@ class Scene:
         logger.info("Robot and camera setup completed.")
 
     def add_camera(self, sim_app) -> None:
-        add_camera_overhead(sim_app)
+        self.camera = add_camera_overhead(sim_app)
         logger.info("Overhead camera added")
 
     def setup(self, sim_app) -> None:
@@ -186,11 +187,13 @@ class Scene:
         logger.info("Scene setup completed.")
 
 
-def set_the_scene(sim_app) -> None:
+def set_the_scene(sim_app):
     # Main function to initialize and setup the scene.
     print("Setting up the scene..."+ str(sim_app))
     scene = Scene()
     scene.setup(sim_app)
+
+    return scene
 
 
 if __name__ == "__main__":

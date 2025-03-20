@@ -1,3 +1,4 @@
+import os
 import math
 import numpy as np
 import cv2
@@ -9,6 +10,9 @@ from scipy.spatial.transform import Rotation as R
 import omni.isaac.core.utils.numpy.rotations as rot_utils
 
 # import lib.camera_lib.cam_test as cam_test
+
+save_dir = "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/camera_lib/cam_out"
+os.makedirs(save_dir, exist_ok=True)
 
 class OverheadCamera:  # Class to create an overhead camera
     def __init__(self) -> None:
@@ -58,29 +62,39 @@ class OverheadCamera:  # Class to create an overhead camera
         self.camera.initialize()
         self.camera.add_motion_vectors_to_frame()
 
+    def save_camera_frames(self):
+        max_frames = 2
+        camera = self.camera
+        frame_count = 0
+        while frame_count < max_frames:
+            # Get RGBA data
+            rgba = camera.get_rgba()
+            if rgba is not None and rgba.size > 0:
+                # Convert float32 RGBA [0..1] to uint8 [0..255], if needed
+                if rgba.dtype == np.float32:
+                    rgba = (rgba * 255).astype(np.uint8)
+
+                # Convert RGBA -> BGR
+                bgr = cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGR)
+
+                # Generate a filename and write to disk
+                filename = os.path.join(save_dir, f"frame_{frame_count:04d}.png")
+                cv2.imwrite(filename, bgr)
+                print(f"Saved {filename}")
+
+                frame_count += 1
+            else:
+                print("No RGBA data retrieved.")
+                break
+
+
 
 def add_camera_overhead(simulation_app):
     overhead_camera = OverheadCamera()
     overhead_camera.create_camera()
     camera_obj = overhead_camera.camera
-    while simulation_app.is_running():
-        # Step the simulation
-        simulation_app.update()
-        rgba = camera_obj.get_rgba()
-        if rgba is not None:
-                # Convert RGBA -> BGR for OpenCV
-                # rgba shape is [height, width, 4], type float32 or uint8 (depending on setup).
-                # Make sure it is in the correct data type for cv2. For example, if it's float32, scale to [0..255].
-                if rgba.dtype == np.float32:
-                    rgba = (rgba * 255).astype(np.uint8)
+    # overhead_camera.save_camera_frames(10)
 
-                bgr = cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGR)
-
-                # Display in a window
-                cv2.imshow("Camera Feed", bgr)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-    # cam_test.read_camera_data(camera_obj)
     return overhead_camera
 
 
