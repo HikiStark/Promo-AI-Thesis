@@ -11,7 +11,8 @@ from scipy.spatial.transform import Rotation as R
 from lib.setup_import_standart import *
 from lib.camera_lib.camera_feed_con import publish_camera_frames, start_publisher
 
-save_dir = "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/camera_lib/cam_out"
+# save_dir = "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/camera_lib/cam_out"
+save_dir = os.path.join(os.path.dirname(__file__), "cam_out")
 os.makedirs(save_dir, exist_ok=True)
 
 class OverheadCamera:  # Class to create an overhead camera
@@ -21,7 +22,7 @@ class OverheadCamera:  # Class to create an overhead camera
         self.camera_position = (0.0, 0.0, 4.5)  # Define camera position
         # Camera properties
         self.frequency = 30  # Capture frequency in Hz
-        self.resolution = (1920, 1080)  # Resolution of the camera
+        self.resolution = (1024, 1024)  # Resolution of the camera
         self.enable_rgb = True  # Enable RGB capture
         self.camera = None  # Camera object
 

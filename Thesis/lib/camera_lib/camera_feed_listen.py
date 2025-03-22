@@ -36,5 +36,26 @@ def receive_and_display():
     context.term()
 
 
+def recieve_and_use_frames():
+    while True:
+        try:
+            # Receive a message (blocking)
+            msg = socket.recv()
+            print("Received a frame")
+            # Convert the byte message to a NumPy array
+            img_array = np.frombuffer(msg, dtype=np.uint8)
+            # Decode the JPEG image into a frame
+            bgr = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+            if bgr is not None:
+                print("Frame received")
+            else:
+                print("Warning: Failed to decode frame.")
+        except KeyboardInterrupt:
+            break
+    cv2.destroyAllWindows()
+    socket.close()
+    context.term()
+
+
 if __name__ == "__main__":
     receive_and_display()
