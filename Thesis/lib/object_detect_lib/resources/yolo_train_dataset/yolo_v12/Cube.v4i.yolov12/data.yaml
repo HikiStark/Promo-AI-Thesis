@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['Cube', 'QR', 'Robot', 'Table']
+
+roboflow:
+  workspace: lego-gbeqo
+  project: cube-k5byd
+  version: 4
+  license: MIT
+  url: https://universe.roboflow.com/lego-gbeqo/cube-k5byd/dataset/4
