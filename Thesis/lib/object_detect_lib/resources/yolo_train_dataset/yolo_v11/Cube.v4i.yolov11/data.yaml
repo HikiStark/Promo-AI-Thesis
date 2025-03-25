@@ -1,6 +1,6 @@
-train: ../train/images
-val: ../valid/images
-test: ../test/images
+train: '/Users/hiki_stark/Documents/Software Development/Github/Promo-AI-Thesis/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v11/Cube.v4i.yolov11/train/images'
+val: '/Users/hiki_stark/Documents/Software Development/Github/Promo-AI-Thesis/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v11/Cube.v4i.yolov11/valid/images'
+test: '/Users/hiki_stark/Documents/Software Development/Github/Promo-AI-Thesis/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v11/Cube.v4i.yolov11/test/images'
 
 nc: 4
 names: ['Cube', 'QR', 'Robot', 'Table']
