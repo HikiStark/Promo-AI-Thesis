@@ -1,9 +1,9 @@
-train: /Users/hiki_stark/Documents/Software Development/Github/Promo-AI-Thesis/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v12/Cube.v4i.yolov12/train/images
-val: /Users/hiki_stark/Documents/Software Development/Github/Promo-AI-Thesis/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v12/Cube.v4i.yolov12/valid/images
-test: /Users/hiki_stark/Documents/Software Development/Github/Promo-AI-Thesis/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v12/Cube.v4i.yolov12/test/images
+train: E:/NVIDIA/isaacsim/myscripts/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v12/Cube.v4i.yolov12/train/images
+val: E:/NVIDIA/isaacsim/myscripts/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v12/Cube.v4i.yolov12/valid/images
+test: E:/NVIDIA/isaacsim/myscripts/Thesis/lib/object_detect_lib/resources/yolo_train_dataset/yolo_v12/Cube.v4i.yolov12/test/images
 
 nc: 4
-names: ['Cube', 'QR', 'Robot', 'Table']
+names: ["Cube", "QR", "Robot", "Table"]
 
 roboflow:
   workspace: lego-gbeqo

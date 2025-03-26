@@ -1,7 +1,7 @@
 from typing import Optional, Tuple, List
 
 from lib.setup_import_standart import *
-from lib.camera_lib.setup_camera import add_camera_overhead
+from lib.setup_camera import add_camera_overhead
 from lib.setup_robot import attach_robot_to_table, set_robot_attach_table
 
 # Setup logging
