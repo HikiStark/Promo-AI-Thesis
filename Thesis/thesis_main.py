@@ -33,6 +33,7 @@ print("\n" + "-" * 120)
 # Start publishing camera frames over ZMQ.
 camera_instance.start_publishing()
 
+
 # Define the main function.
 def main() -> None:
     # Main simulation loop.
@@ -52,14 +53,11 @@ def main() -> None:
                 my_controller_RMP.reset()
                 reset_needed = False
 
-
             # Retrieve current observations (for potential use).
             observations = world.get_observations()
 
             # Execute the task where the robot looks at the table.
-            robot_look_at_table(
-                articulation_controller, my_controller_RMP, my_controller_PP
-            )
+            robot_look_at_table(articulation_controller, my_controller_RMP, my_controller_PP)
 
             # Example: Move to a specific target position
             # target_position = np.array([0.5, 0.5, 0.3])  # Define specific target position
