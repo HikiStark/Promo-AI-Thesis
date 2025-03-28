@@ -33,6 +33,8 @@ from omni.isaac.universal_robots.controllers.pick_place_controller import (
     PickPlaceController,
 )
 
+settings = carb.settings.get_settings()
+settings.set_bool("/rtx/raytracing/fractionalCutoutOpacity", True)
 
 world = World(stage_units_in_meters=1.0)
 

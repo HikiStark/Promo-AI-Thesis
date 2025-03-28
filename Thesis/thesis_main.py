@@ -13,7 +13,6 @@ from lib.setup_import_standart import *
 from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup
 from lib.tasks.robot_look_table import robot_look_at_table
-from lib.setup_camera import OverheadCamera as cam_ov
 
 
 # Print a divider line.

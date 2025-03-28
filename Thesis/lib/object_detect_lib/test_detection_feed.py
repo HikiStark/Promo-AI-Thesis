@@ -94,8 +94,18 @@ def main():
             results = detector.detect(frame)
             print("Detection Output:", results)
 
-            # Visualize bounding boxes if your model outputs
-            # e.g. cv2.rectangle(...)
+            # Visualize bounding boxes if your model outputs them
+            for result in results:
+                boxes = result.boxes  # Assuming the model outputs bounding boxes
+                for box in boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])  # Convert to integer coordinates
+                    confidence = box.conf[0]  # Confidence score
+                    label = box.cls[0]  # Class label index
+                    label_text = f"{detector.model.names[int(label)]} {confidence:.2f}"  # Class name and confidence
+
+                    # Draw the bounding box and label on the frame
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             # Display the frame
             cv2.imshow("YOLO Detections", frame)
