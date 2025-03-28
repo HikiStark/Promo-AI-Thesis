@@ -5,21 +5,12 @@ import zmq
 import time
 import numpy as np
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-lib_dir = os.path.abspath(os.path.join(current_dir, ".."))  # one level up = "lib"
-if lib_dir not in sys.path:
-    sys.path.append(lib_dir)
-
-from object_detect_lib.detection_feed_main import YOLODetector
-
 # Set up ZMQ subscriber
 context = zmq.Context()
 socket = context.socket(zmq.SUB)
 socket.connect("tcp://127.0.0.1:5555")
 socket.setsockopt_string(zmq.SUBSCRIBE, "")  # Subscribe to all topics
 time.sleep(1)  # Allow time for subscription registration
-
-detector = YOLODetector()
 
 
 def receive_and_detect():

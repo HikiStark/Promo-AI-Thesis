@@ -1,9 +1,3 @@
-"""
-This sample Python script demonstrates how to connect to a camera feed stream
-and use a custom YOLO model (trained on your custom dataset) to detect objects.
-It relies on ZMQ for streaming frames and a local (PyTorch-based) YOLO model.
-"""
-
 import os
 import zmq
 import cv2
@@ -12,33 +6,22 @@ import numpy as np
 import torch
 from ultralytics import YOLO
 
-# # Update this with the path to your trained YOLO weights (e.g. best.pt)
-# # CUSTOM_MODEL_PATH = os.path.join(os.path.dirname(__file__), "best.pt")
-# CUSTOM_MODEL_PATH = os.path.join(os.path.dirname(__file__), "resources", "yolo_train_dataset", "yolo_v11", "runs", "detect", "train4", "weights", "best.pt")
-CUSTOM_MODEL_PATH = ("custom_dataset.pt")
-print("Using custom model:", CUSTOM_MODEL_PATH)
+# Path to your custom YOLO model
+CUSTOM_MODEL_PATH = "custom_dataset.pt"
 
 
-class SimpleYOLODetector:
-    def __init__(self, model_path, use_half=False):
-        """Initialize the YOLO model."""
+class YOLODetector:
+    def __init__(self, model_path, use_half=False):  # Initialize the YOLO model.
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # If you saved your model using torch.save() directly, load like this:
-        # self.model = torch.load(model_path, map_location=self.device)
-        # If using Ultralytics YOLO (pip install ultralytics), do:
+        # If you saved your model using torch.save() directly, load like this: self.model = torch.load(model_path, map_location=self.device)
         self.model = YOLO(model_path)
-
-        # For demonstration, we assume you have a standard PyTorch model:
-        # self.model = torch.load(model_path, map_location=self.device)
-
         self.model.eval()
         self.model.to(self.device)
         self.use_half = use_half
         if use_half:
             self.model.half()
 
-    def preprocess(self, frame_bgr):
-        """Convert BGR image to the correct format (RGB + channels-first)."""
+    def preprocess(self, frame_bgr):  # Convert BGR image to the correct format (RGB + channels-first).
         # Convert from BGR to RGB
         img_rgb = frame_bgr[:, :, ::-1]
         # Make array contiguous and create a Float/half tensor
@@ -62,7 +45,7 @@ class SimpleYOLODetector:
         return outputs
 
 
-def main():
+def detection_module():
     # Set up ZeroMQ subscriber
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
@@ -73,9 +56,9 @@ def main():
     time.sleep(1)  # Allow some time to connect
 
     # Initialize YOLO Detector
-    detector = SimpleYOLODetector(
+    detector = YOLODetector(
         model_path=CUSTOM_MODEL_PATH,
-        use_half=False,  # or True if your GPU supports half-precision
+        use_half=False,
     )
 
     print("Starting detection loop. Press Ctrl+C to exit.")
@@ -104,8 +87,8 @@ def main():
                     label_text = f"{detector.model.names[int(label)]} {confidence:.2f}"  # Class name and confidence
 
                     # Draw the bounding box and label on the frame
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                    cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
             # Display the frame
             cv2.imshow("YOLO Detections", frame)
@@ -119,5 +102,6 @@ def main():
         socket.close()
         context.term()
 
+
 if __name__ == "__main__":
-    main()
+    detection_module()

@@ -4,7 +4,7 @@ from isaacsim import SimulationApp
 simulation_app = SimulationApp(
     {
         "headless": False,
-        "window_width": 2800,
+        "window_width": 2400,
         "window_height": 1500,
     }
 )
@@ -12,34 +12,43 @@ simulation_app = SimulationApp(
 from lib.setup_import_standart import *
 from lib.setup_robot import setup_robot
 import lib.setup_task as tasksetup
+import zmq
 from lib.tasks.robot_look_table import robot_look_at_table
 
+# Set up ZMQ publisher
+context = zmq.Context()
 
-# Print a divider line.
+
+def initialize_publisher():
+    socket = context.socket(zmq.PUB)
+    socket.setsockopt(zmq.SNDHWM, 1)  # Limit backlog
+    socket.send(..., zmq.NOBLOCK)
+    socket.bind("tcp://*:5555")
+    return socket
+
+
 print("-" * 120 + "\n")
 
-# Setup robot controllers and scene.
 articulation_controller, my_controller_RMP, my_controller_PP = setup_robot()
 scene = tasksetup.set_the_scene(simulation_app)
-# scene now has: scene.camera (the OverheadCamera instance)
 camera_instance = scene.camera
 print("camera_instance:", camera_instance)
 
 print("\n" + "-" * 120)
 
 # camera_instance.save_camera_frames()
-# Start publishing camera frames once
-# Start publishing camera frames over ZMQ.
-camera_instance.start_publishing()
+# camera_instance.start_publishing()
+socket = initialize_publisher()
 
 
-# Define the main function.
 def main() -> None:
     # Main simulation loop.
     reset_needed = False
     while simulation_app.is_running():
         # Step the simulation with rendering enabled.
         world.step(render=True)
+
+        camera_instance.publish_camera_frames(socket)
 
         # Check if simulation is stopped to mark for reset.
         if world.is_stopped() and not reset_needed:
@@ -52,8 +61,7 @@ def main() -> None:
                 my_controller_RMP.reset()
                 reset_needed = False
 
-            # Retrieve current observations (for potential use).
-            observations = world.get_observations()
+            # observations = world.get_observations()  # Retrieve current observations (for potential use).
 
             # Execute the task where the robot looks at the table.
             robot_look_at_table(articulation_controller, my_controller_RMP, my_controller_PP)

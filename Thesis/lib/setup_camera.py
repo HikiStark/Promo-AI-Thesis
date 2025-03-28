@@ -1,6 +1,9 @@
 import os
 import cv2
+import zmq
 import math
+import time
+import threading
 import numpy as np
 import omni.kit
 import omni.kit.viewport.utility
@@ -9,11 +12,8 @@ import omni.isaac.core.utils.numpy.rotations as rot_utils
 from omni.isaac.sensor import Camera
 from scipy.spatial.transform import Rotation as R
 from lib.setup_import_standart import *
-from lib.camera_lib.camera_feed_stream import publish_camera_frames, start_publisher
 
 # save_dir = "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/camera_lib/cam_out"
-save_dir = os.path.join(os.path.dirname(__file__), "cam_out")
-os.makedirs(save_dir, exist_ok=True)
 
 class OverheadCamera:  # Class to create an overhead camera
     def __init__(self) -> None:
@@ -64,6 +64,8 @@ class OverheadCamera:  # Class to create an overhead camera
         self.camera.add_motion_vectors_to_frame()
 
     def save_camera_frames(self):
+        save_dir = os.path.join(os.path.dirname(__file__), "cam_out")
+        os.makedirs(save_dir, exist_ok=True)
         max_frames = 2
         camera = self.camera
         frame_count = 0
@@ -87,7 +89,7 @@ class OverheadCamera:  # Class to create an overhead camera
             else:
                 print("No RGBA data retrieved.")
                 break
-    
+
     def setup_in_viewport(self):
         """
         Configure an Isaac Sim viewport to view the camera at `camera_prim_path`.
@@ -105,14 +107,35 @@ class OverheadCamera:  # Class to create an overhead camera
         # Assign this viewport to use the given camera prim
         viewport_api.set_active_camera(camera_prim_path)
 
+    def publish_camera_frames(self, socket):
+        camera = self.camera
+        rgba = camera.get_rgba()
+        if rgba is not None and rgba.size > 0:
+            # If the frame is in float format, convert to uint8
+            if rgba.dtype == np.float32:
+                rgba = (rgba * 255).astype(np.uint8)
+            # Convert RGBA to BGR since OpenCV uses BGR ordering
+            bgr = cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGR)
 
-    def start_publishing(self):
-        """
-        Start publishing camera frames over ZMQ.
-        """
-        start_publisher(self.camera)
-        # publish_camera_frames(self.camera)
+            # Encode the frame as JPEG to compress data before sending
+            ret, encoded = cv2.imencode(".jpg", bgr)
+            if ret:
+                try:
+                    # Use non-blocking send; if the subscriber is slow, you may drop frames
+                    socket.send(encoded.tobytes(), zmq.NOBLOCK)
+                except zmq.Again:
+                    print("Warning: Dropped frame due to high load or slow subscriber.")
+            else:
+                print("Warning: Frame encoding failed.")
 
+        # Step simulation or add your simulation stepping logic here.
+        # Sleep to simulate 0.033~30 FPS; adjust as needed.
+        time.sleep(0.1)
+
+    # def start_publisher(camera: Camera):
+    #     # Start the publisher in a daemon thread so it won't block the main thread on exit
+    #     publisher_thread = threading.Thread(target=publish_camera_frames, args=(camera,), daemon=True)
+    #     publisher_thread.start()
 
 
 def add_camera_overhead(simulation_app):

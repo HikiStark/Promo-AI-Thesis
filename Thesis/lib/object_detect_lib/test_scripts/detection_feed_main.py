@@ -24,7 +24,7 @@ class ImagePaths:
         results = model(image)
         # Plot results
         annotated_frame = results[0].plot()
-        annotated_rgb = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)    # Convert BGR to RGB for visualization
+        annotated_rgb = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB for visualization
 
         # Show the result
         plt.imshow(annotated_rgb)
