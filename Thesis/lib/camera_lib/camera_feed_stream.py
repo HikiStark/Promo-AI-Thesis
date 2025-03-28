@@ -8,6 +8,15 @@ from omni.isaac.sensor import Camera
 # Set up ZMQ publisher
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
+
+# -------------------------
+# 1) Limit backlog on publisher side
+socket.setsockopt(zmq.SNDHWM, 1)
+# You could alternatively do:
+# socket.setsockopt(zmq.CONFLATE, 1)
+# But typically conflate is used on the subscriber side.
+# -------------------------
+
 socket.bind("tcp://*:5555")  # Listen on port 5555
 
 
@@ -39,11 +48,15 @@ def publish_camera_frames(camera):
 
 def start_publisher(camera: Camera):
     # Start the publisher in a daemon thread so it won't block the main thread on exit
-    publisher_thread = threading.Thread(
-        target=publish_camera_frames, args=(camera,), daemon=True
-    )
+    publisher_thread = threading.Thread(target=publish_camera_frames, args=(camera,), daemon=True)
     publisher_thread.start()
 
 
 if __name__ == "__main__":
+    # For testing:
+    # You would normally pass your camera object here
+    dummy_camera = None
+    start_publisher(dummy_camera)
+    while True:
+        time.sleep(1)
     print("-" * 120 + "\n")
