@@ -22,7 +22,6 @@ context = zmq.Context()
 def initialize_publisher():
     socket = context.socket(zmq.PUB)
     socket.setsockopt(zmq.SNDHWM, 1)  # Limit backlog
-    socket.send(..., zmq.NOBLOCK)
     socket.bind("tcp://*:5555")
     return socket
 
@@ -37,7 +36,6 @@ print("camera_instance:", camera_instance)
 print("\n" + "-" * 120)
 
 # camera_instance.save_camera_frames()
-# camera_instance.start_publishing()
 socket = initialize_publisher()
 
 
@@ -48,13 +46,12 @@ def main() -> None:
         # Step the simulation with rendering enabled.
         world.step(render=True)
 
-        camera_instance.publish_camera_frames(socket)
-
         # Check if simulation is stopped to mark for reset.
         if world.is_stopped() and not reset_needed:
             reset_needed = True
 
         if world.is_playing():
+            camera_instance.publish_camera_frames(socket)
             # If a reset is needed, reset the simulation and the robot controller.
             if reset_needed:
                 world.reset()

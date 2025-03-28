@@ -1,19 +1,46 @@
 import numpy as np
 import cv2
 
-# Define the 3D coordinates of the QR code corners in the real world (e.g., assuming a square of side length L)
-L = 0.1  # Example: 10 cm QR code
-obj_points = np.array([[0, 0, 0], [L, 0, 0], [L, L, 0], [0, L, 0]], dtype=np.float32)
+# Define table parameters (in meters) and coordinate system.
+TABLE_WIDTH = 1.0  # e.g., table is 1 meter wide
+TABLE_HEIGHT = 0.5  # e.g., table is 0.5 meter deep
+TABLE_ORIGIN = np.array([0.0, 0.0])  # bottom-left corner as origin
+TARGET_POSITION = np.array([0.5, 0.25])  # example target position
 
-# Assume bbox is already obtained from the detector and reshaped appropriately:
-img_points = np.array([point[0] for point in bbox], dtype=np.float32)
 
-# Camera matrix and distortion coefficients from calibration
-camera_matrix = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
-dist_coeffs = np.zeros((4, 1))  # or use actual distortion coefficients
+def pixel_to_table_coordinates(pixel_coords, image_resolution, table_dimensions=(TABLE_WIDTH, TABLE_HEIGHT)):
+    """
+    Convert pixel coordinates (x, y) from the camera image to table coordinates.
+    Args:
+      pixel_coords: tuple (x, y) in pixels.
+      image_resolution: tuple (width, height) of the image.
+      table_dimensions: physical dimensions (width, height) of the table.
+    Returns:
+      A numpy array [x, y] representing the position on the table in meters.
+    """
+    image_width, image_height = image_resolution
+    table_width, table_height = table_dimensions
+    # Normalize pixel coordinates (assuming (0,0) is top-left in the image)
+    norm_x = pixel_coords[0] / image_width
+    norm_y = pixel_coords[1] / image_height
+    # Flip y so that 0 is at the bottom of the table
+    table_x = norm_x * table_width
+    table_y = (1 - norm_y) * table_height
+    return np.array([table_x, table_y])
 
-ret, rvec, tvec = cv2.solvePnP(obj_points, img_points, camera_matrix, dist_coeffs)
 
-if ret:
-    print("Rotation Vector:", rvec)
-    print("Translation Vector:", tvec)
+def estimate_box_position(bbox, image_resolution):
+    """
+    Given a bounding box (x1, y1, x2, y2) from detection,
+    estimate the center position of the box on the table.
+    """
+    x1, y1, x2, y2 = bbox
+    center_pixel = ((x1 + x2) / 2, (y1 + y2) / 2)
+    return pixel_to_table_coordinates(center_pixel, image_resolution)
+
+
+def is_at_target(position, target=TARGET_POSITION, threshold=0.05):
+    """
+    Check if the estimated position is within a threshold of the target.
+    """
+    return np.linalg.norm(position - target) < threshold

@@ -22,10 +22,7 @@ class Table:
 
     def __init__(self):
         # Define paths for the table asset.
-        self.usd_path = (
-            assets_root_path
-            + "/Isaac/Environments/Outdoor/Rivermark/dsready_content/nv_content/common_assets/props_general/table01/table01.usd"
-        )
+        self.usd_path = assets_root_path + "/Isaac/Environments/Outdoor/Rivermark/dsready_content/nv_content/common_assets/props_general/table01/table01.usd"
         self.prim_path = "/World/Table"
         self.prim = None
 
@@ -67,9 +64,7 @@ class QRCode:
 
     def __init__(self) -> None:
         self.prim_path: str = "/World/QR_board"
-        self.qr_usd_path: str = (
-            "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/object_detect_lib/resources/checkerboard_2.usdz"
-        )
+        self.qr_usd_path: str = "E:/NVIDIA/isaacsim/myscripts/Thesis/lib/object_detect_lib/resources/checkerboard_2.usdz"
         self.prim: Optional[Usd.Prim] = None
 
     def add_to_stage(self) -> Optional[Usd.Prim]:
@@ -96,9 +91,7 @@ class QRCode:
         scale_op.Set(Gf.Vec3f(0.0024, 0.0024, 0.0024))
         rotate_x_op = xformable.AddRotateXOp()
         rotate_x_op.Set(90)
-        logger.info(
-            f"Applied scale and 90° x-axis rotation to QR prim: {self.prim_path}"
-        )
+        logger.info(f"Applied scale and 90° x-axis rotation to QR prim: {self.prim_path}")
         return self.prim
 
 
@@ -155,9 +148,7 @@ class Scene:
     def add_qr_code(self) -> Optional[Usd.Prim]:
         return self.qr_code.add_to_stage()
 
-    def add_cube(
-        self, index: int, position: Tuple[float, float, float]
-    ) -> Optional[Usd.Prim]:
+    def add_cube(self, index: int, position: Tuple[float, float, float]) -> Optional[Usd.Prim]:
         cube = Cube(index=index, position=position)
         self.cubes.append(cube)
         return cube.add_to_stage()
@@ -189,7 +180,7 @@ class Scene:
 
 def set_the_scene(sim_app):
     # Main function to initialize and setup the scene.
-    print("Setting up the scene..."+ str(sim_app))
+    print("Setting up the scene..." + str(sim_app))
     scene = Scene()
     scene.setup(sim_app)
 

@@ -5,6 +5,7 @@ import time
 import numpy as np
 import torch
 from ultralytics import YOLO
+from pose_estimator import estimate_box_position, is_at_target
 
 # Path to your custom YOLO model
 CUSTOM_MODEL_PATH = "custom_dataset.pt"
@@ -45,6 +46,33 @@ class YOLODetector:
         return outputs
 
 
+def visualize_detections(frame, results, detector):
+    """Visualize detections on the frame."""
+    # Visualize bounding boxes if your model outputs them
+    for result in results:
+        boxes = result.boxes  # Assuming the model outputs bounding boxes
+        for box in boxes:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])  # Convert to integer coordinates
+            confidence = box.conf[0]  # Confidence score
+            label = box.cls[0]  # Class label index
+            label_text = f"{detector.model.names[int(label)]} {confidence:.2f}"  # Class name and confidence
+
+            # Draw the bounding box and label on the frame
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
+            cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+
+            # Compute the estimated table position using the 640x640 image resolution
+            estimated_position = estimate_box_position((x1, y1, x2, y2), (frame.shape[1], frame.shape[0]))
+            pos_text = f"Est: ({estimated_position[0]:.2f}, {estimated_position[1]:.2f})"
+
+            # Overlay the estimation text on the frame in red
+            cv2.putText(frame, pos_text, (x1, y2 + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+            # Optionally, draw a red circle at the center of the bounding box
+            center_pixel = ((x1 + x2) // 2, (y1 + y2) // 2)
+            cv2.circle(frame, center_pixel, radius=3, color=(0, 0, 255), thickness=-1)
+
+
 def detection_module():
     # Set up ZeroMQ subscriber
     context = zmq.Context()
@@ -77,19 +105,8 @@ def detection_module():
             results = detector.detect(frame)
             print("Detection Output:", results)
 
-            # Visualize bounding boxes if your model outputs them
-            for result in results:
-                boxes = result.boxes  # Assuming the model outputs bounding boxes
-                for box in boxes:
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])  # Convert to integer coordinates
-                    confidence = box.conf[0]  # Confidence score
-                    label = box.cls[0]  # Class label index
-                    label_text = f"{detector.model.names[int(label)]} {confidence:.2f}"  # Class name and confidence
-
-                    # Draw the bounding box and label on the frame
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
-                    cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-
+            # Display the frame with detections
+            visualize_detections(frame, results, detector)
             # Display the frame
             cv2.imshow("YOLO Detections", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
