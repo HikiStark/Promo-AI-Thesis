@@ -1,0 +1,76 @@
+from lib.setup_import_standart import *
+
+def get_prim_world_transform(prim):
+    """
+    Returns the 4x4 world transform matrix of the given prim as a NumPy array.
+    """
+    xformable = UsdGeom.Xformable(prim)
+    # Compute the transform at the default time code (frame)
+    transform_gf = xformable.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+    # Convert pxr.Gf.Matrix4d to a NumPy array
+    transform_np = np.array(transform_gf)
+    return transform_np
+
+
+def matrix_to_quat(transform_np):
+    """
+    Extracts the rotation (3x3) from a 4x4 matrix and converts it to a quaternion [x, y, z, w].
+    """
+    rot_mat = transform_np[:3, :3]  # top-left 3x3 portion is rotation
+    r = R.from_matrix(rot_mat)
+    quat_xyzw = r.as_quat()  # [x, y, z, w]
+    return quat_xyzw
+
+
+def get_end_effector_pose(ee_prim_path):
+    """
+    Retrieves the end-effector's world pose as (position, orientation_quaternion).
+    orientation is [x, y, z, w].
+    """
+    ee_prim = get_prim_at_path(ee_prim_path)
+    if not ee_prim.IsValid():
+        print(f"[Error] End effector prim not found at: {ee_prim_path}")
+        return None, None
+
+    transform_np = get_prim_world_transform(ee_prim)
+    # Position is the last column of the 4x4
+    position = transform_np[:3, 3]
+    # Convert rotation to a quaternion
+    orientation = matrix_to_quat(transform_np)
+    return position, orientation
+
+
+def is_close_enough(current_pos, target_pos, current_ori, target_ori, pos_threshold=0.03, ori_threshold=0.03):
+    # Euclidean distance for position
+    pos_diff = np.linalg.norm(current_pos - target_pos)
+    # Quaternion difference (dot product approach)
+    dot_val = abs(np.dot(current_ori, target_ori))
+    ori_diff = 1.0 - dot_val
+    return (pos_diff < pos_threshold) and (ori_diff < ori_threshold)
+
+
+def track_task_progress(articulation_controller, controller, target_pos, target_ori, task_state):
+    if task_state.get("done", False):
+        return
+
+    # Retrieve end-effector pose from the custom helper
+    current_pos, current_ori = get_end_effector_pose("/World/UR10/ee_link")
+    if current_pos is None:
+        print("Could not get EE pose, skipping this frame.")
+        return
+
+    # Check thresholds
+    if is_close_enough(current_pos, target_pos, current_ori, target_ori):
+        task_state["done"] = True
+        print("Task completed!")
+    else:
+        # Not done; compute next action
+        actions = controller.forward(
+            target_end_effector_position=target_pos,
+            target_end_effector_orientation=target_ori,
+        )
+        articulation_controller.apply_action(actions)
+
+    print("Current EE Position:", current_pos)
+    print("Target Position:", target_pos)
+    print("Computed Actions:", actions)

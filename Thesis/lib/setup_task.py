@@ -1,5 +1,3 @@
-from typing import Optional, Tuple, List
-
 from lib.setup_import_standart import *
 from lib.setup_camera import add_camera_overhead
 from lib.setup_robot import attach_robot_to_table, set_robot_attach_table
@@ -13,6 +11,9 @@ assets_root_path: Optional[str] = get_assets_root_path()
 if assets_root_path is None:
     carb.log_error("Could not find Isaac Sim assets folder")
     sys.exit()
+
+# Set up ZMQ publisher
+context = zmq.Context()
 
 
 class Table:
@@ -176,6 +177,21 @@ class Scene:
         self.setup_robot()
         self.add_camera(sim_app)
         logger.info("Scene setup completed.")
+
+
+def initialize_publisher():
+    socket = context.socket(zmq.PUB)
+    socket.setsockopt(zmq.SNDHWM, 1)  # Limit backlog
+    socket.bind("tcp://*:5555")
+    logger.info("Publisher socket initialized on port 5555")
+    return socket
+
+
+def initialize_command_receiver():
+    cmd_socket = context.socket(zmq.PULL)
+    cmd_socket.bind("tcp://*:5560")  # Bind on a new port (5560)
+    logger.info("Command receiver socket initialized on port 5560")
+    return cmd_socket
 
 
 def set_the_scene(sim_app):
