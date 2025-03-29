@@ -37,11 +37,7 @@ def setup_robot():
     )
 
     # Set initial joint states
-    ur10.set_joints_default_state(
-        positions=np.array(
-            [-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0]
-        )
-    )
+    ur10.set_joints_default_state(positions=np.array([-np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2, np.pi / 2, 0]))
 
     # Set default gripper state
     ur10.gripper.set_default_state(opened=True)
@@ -49,13 +45,9 @@ def setup_robot():
     # Define the tasks
     articulation_controller = ur10.get_articulation_controller()
 
-    my_controller_PP = PickPlaceController(
-        name="pick_place_controller", gripper=ur10.gripper, robot_articulation=ur10
-    )
+    my_controller_PP = PickPlaceController(name="pick_place_controller", gripper=ur10.gripper, robot_articulation=ur10)
     # RMPFlow controller for advanced movement
-    my_controller_RMP = RMPFlowController(
-        name="target_follower_controller", robot_articulation=ur10, attach_gripper=True
-    )
+    my_controller_RMP = RMPFlowController(name="target_follower_controller", robot_articulation=ur10, attach_gripper=True)
 
     return (
         articulation_controller,

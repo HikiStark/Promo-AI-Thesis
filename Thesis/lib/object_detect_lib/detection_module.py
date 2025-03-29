@@ -5,7 +5,7 @@ import time
 import numpy as np
 import torch
 from ultralytics import YOLO
-from pose_estimator import estimate_box_position, is_at_target
+from pose_estimator import estimate_box_position, draw_line_to_target, show_target_position
 
 # Path to your custom YOLO model
 CUSTOM_MODEL_PATH = "custom_dataset.pt"
@@ -48,6 +48,11 @@ class YOLODetector:
 
 def visualize_detections(frame, results, detector):
     """Visualize detections on the frame."""
+    image_resolution = (frame.shape[1], frame.shape[0])
+
+    # Draw the target marker on the feed and get its pixel coordinates.
+    target_pixel = show_target_position(frame, image_resolution)
+
     # Visualize bounding boxes if your model outputs them
     for result in results:
         boxes = result.boxes  # Assuming the model outputs bounding boxes
@@ -55,6 +60,7 @@ def visualize_detections(frame, results, detector):
             x1, y1, x2, y2 = map(int, box.xyxy[0])  # Convert to integer coordinates
             confidence = box.conf[0]  # Confidence score
             label = box.cls[0]  # Class label index
+            label_name = detector.model.names[int(label)]
             label_text = f"{detector.model.names[int(label)]} {confidence:.2f}"  # Class name and confidence
 
             # Draw the bounding box and label on the frame
@@ -64,9 +70,12 @@ def visualize_detections(frame, results, detector):
             # Compute the estimated table position using the 640x640 image resolution
             estimated_position = estimate_box_position((x1, y1, x2, y2), (frame.shape[1], frame.shape[0]))
             pos_text = f"Est: ({estimated_position[0]:.2f}, {estimated_position[1]:.2f})"
-
             # Overlay the estimation text on the frame in red
             cv2.putText(frame, pos_text, (x1, y2 + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+            if label_name == "Cube":
+                # Draw a red line from the box center to the target position.
+                draw_line_to_target(frame, (x1, y1, x2, y2), image_resolution)
 
             # Optionally, draw a red circle at the center of the bounding box
             center_pixel = ((x1 + x2) // 2, (y1 + y2) // 2)

@@ -5,19 +5,25 @@ import argparse
 import numpy as np
 from omni.isaac.nucleus import get_assets_root_path
 
-from pxr import UsdPhysics, PhysxSchema, Usd, Sdf, UsdGeom, Gf 
+from pxr import UsdPhysics, PhysxSchema, Usd, Sdf, UsdGeom, Gf
+from scipy.spatial.transform import Rotation as R
 
 import omni.isaac.core
 from omni.isaac.core import World
-from omni.isaac.core.utils.stage import get_stage_units
 from omni.isaac.core.physics_context import PhysicsContext
+from omni.isaac.core.objects import VisualCuboid, DynamicCuboid, FixedCuboid
 from omni.isaac.core.utils.prims import is_prim_path_valid, get_prim_at_path
-# from omni.isaac.core.utils.extensions import get_extension_path_from_name
-from omni.isaac.core.utils.stage import add_reference_to_stage, get_current_stage
+from omni.isaac.core.utils.stage import get_stage_units, add_reference_to_stage, get_current_stage
 from omni.isaac.core.utils.rotations import euler_angles_to_quat
 import omni.isaac.core.utils.numpy.rotations as rot_utils
 from omni.isaac.core.utils.string import find_unique_string_name
-from omni.isaac.core.objects import VisualCuboid, DynamicCuboid, FixedCuboid
+# from omni.isaac.core.utils.transformations import (
+#     omni_transform_to_numpy_matrix,
+#     matrix_to_quat,
+# )
+
+
+# from omni.isaac.core.utils.extensions import get_extension_path_from_name
 # import omni.isaac.core.controllers.articulation_controller.ArticulationController
 
 from omni.isaac.manipulators import SingleManipulator
@@ -33,10 +39,12 @@ from omni.isaac.universal_robots.controllers.pick_place_controller import (
     PickPlaceController,
 )
 
+
 settings = carb.settings.get_settings()
 settings.set_bool("/rtx/raytracing/fractionalCutoutOpacity", True)
 
 world = World(stage_units_in_meters=1.0)
+
 
 def apply_collision(prim):
     """
@@ -69,7 +77,7 @@ def calc_object_midpoint(prim):
 
     if not object_prim.IsValid():
         raise ValueError(f"Error: Table prim at {object_prim} is not valid.")
-     
+
     # Get the table's bounding box to calculate the top surface position
     object_geom = UsdGeom.Boundable(object_prim)
     bbox = object_geom.ComputeWorldBound(0, "default")
