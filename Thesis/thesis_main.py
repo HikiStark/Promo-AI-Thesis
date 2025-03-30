@@ -40,37 +40,31 @@ def main() -> None:
     reset_needed = False
 
     # Example: define a task
-    target_position = np.array([0.5, 0.5, 0.3])
-    target_orientation = np.array([0, 0, 0, 1])  # quaternion
+    # target_position = np.array([0.5, 0.5, 0.3])
+    # target_orientation = np.array([0, 0, 0, 1])  # quaternion
     task_state = {"done": False}  # Track if task is complete
+    message_recieved = False  # Flag to track if a message was received
 
     while simulation_app.is_running():
         # Step the simulation with rendering enabled.
         world.step(render=True)
 
-        # # Process external commands if available
-        # if cmd_socket.poll(timeout=0):
-        #     try:
-        #         msg = cmd_socket.recv(zmq.NOBLOCK)
-        #         command = json.loads(msg.decode("utf-8"))
-        #         print("Received command:", command)
-        #         if command.get("command") == "move":
-        #             external_control_active = True
-        #             target_position = np.array(command["target_position"])
-        #             target_orientation = np.array(command["target_orientation"])
-        #             # Debug: Print the target values
-        #             print("Target Position:", target_position)
-        #             print("Target Orientation:", target_orientation)
-        #             # Compute the movement action
-        #             actions = my_controller_RMP.forward(
-        #                 target_end_effector_position=target_position,
-        #                 target_end_effector_orientation=target_orientation,
-        #             )
-        #             # Debug: Print computed actions
-        #             print("Computed Actions:", actions)
-        #             articulation_controller.apply_action(actions)
-        #     except Exception as e:
-        #         print("Error processing command:", e)
+        # Process external commands if available
+        if cmd_socket.poll(timeout=0):
+            try:
+                msg = cmd_socket.recv(zmq.NOBLOCK)
+                command = json.loads(msg.decode("utf-8"))
+                print("Received command:", command)
+                if command.get("command") == "move":
+                    external_control_active = True
+                    target_position = np.array(command["target_position"])
+                    target_orientation = np.array(command["target_orientation"])
+                    message_recieved = True
+                    # Debug: Print the target values
+                    print("Target Position:", target_position)
+                    print("Target Orientation:", target_orientation)
+            except Exception as e:
+                print("Error processing command:", e)
 
         # ---------------------------------------------------------------------------------------------------------------------------------
         # Check if simulation is stopped to mark for reset.
@@ -85,25 +79,18 @@ def main() -> None:
             #     my_controller_RMP.reset()
             #     reset_needed = False
 
-            # If we still have a task in progress, keep moving the robot
-            if not task_state["done"]:
-                track_task_progress(articulation_controller, my_controller_RMP, target_position, target_orientation, task_state)
-
+            if message_recieved:
+                # If we still have a task in progress, keep moving the robot
+                if not task_state["done"]:
+                    track_task_progress(articulation_controller, my_controller_RMP, target_position, target_orientation, task_state)
+                else:
+                    # If we’re done, we could do something else or remain idle
+                    pass
             else:
-                # If we’re done, we could do something else or remain idle
-                pass
-
-            # # Only call default task if no external command is active.
-            # if not external_control_active:
-            #     # robot_look_at_table(articulation_controller, my_controller_RMP, my_controller_PP)
-            #     print("Executing default task...")
-            # else:
-            #     # Optionally reset external control after a few steps or based on a condition.
-            #     # For instance, reset the flag after applying the command for a few iterations.
-            #     external_control_active = False
+                logging.info("No command received. Robot is idle.")
 
             # observations = world.get_observations()
-
+        # ---------------------------------------------------------------------------------------------------------------------------------
     simulation_app.close()
 
 

@@ -1,5 +1,6 @@
 from lib.setup_import_standart import *
 
+
 def get_prim_world_transform(prim):
     """
     Returns the 4x4 world transform matrix of the given prim as a NumPy array.
@@ -64,13 +65,27 @@ def track_task_progress(articulation_controller, controller, target_pos, target_
         task_state["done"] = True
         print("Task completed!")
     else:
-        # Not done; compute next action
-        actions = controller.forward(
-            target_end_effector_position=target_pos,
-            target_end_effector_orientation=target_ori,
-        )
-        articulation_controller.apply_action(actions)
+        # # Not done; compute next action
+        # actions = controller.forward(
+        #     target_end_effector_position=target_pos,
+        #     target_end_effector_orientation=target_ori,
+        # )
+        # articulation_controller.apply_action(actions)
+        robot_move_to_target(articulation_controller, controller, target_pos, target_ori)
 
     print("Current EE Position:", current_pos)
-    print("Target Position:", target_pos)
+
+
+def robot_move_to_target(articulation_controller, controller, target_position, target_orientation):
+    actions = controller.forward(
+        target_end_effector_position=target_position,
+        target_end_effector_orientation=target_orientation,
+    )
+    # Execute actions
+    articulation_controller.apply_action(actions)
+    print("Target Position:", target_position)
     print("Computed Actions:", actions)
+    logging.info(f"Moving to target position: {target_position}, orientation: {target_orientation}")
+    # Optionally, you can add a small delay to allow for smoother motion
+    # time.sleep(0.1)  # Adjust as needed
+    world.step()
