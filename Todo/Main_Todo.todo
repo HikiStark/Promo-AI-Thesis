@@ -13,14 +13,14 @@ Core Stuff Todo:@14d
         ☐ Add 3 more cameras to the setup
         ☐ Add different types of visual feedback
         ☐ Add Lidar sensor to the setup
-        ☐ Make sure the script from before captures all these live outputs correctly
+        ✔ Make sure the script from before captures all these live outputs correctly @done(25-03-31 21:58)
         Environment setup:
         ✔ Add QR code to the corner of the table to make sure the camera is oriented correctly @done(25-03-16 03:19)
         ☐ After getting the parameters of the table add red target point to the table for the required output
 ________________________________________________________________________________________________________________________________________
     2. Getting Parameters from Environment:
-        ☐ Make function that calculates and returns Parameters of the mid point of the object related to the WORLD.
-        ☐ Detect the Table
+        ✔ Make function that calculates and returns Parameters of the mid point of the object related to the WORLD. @done(25-03-31 21:58)
+        ✔ Detect the Table @done(25-03-31 21:58)
         ☐ Get the parameters of the table
         ☐ Get the parameters of the table in the WORLD
         ☐ Estimate the 3D position of the table

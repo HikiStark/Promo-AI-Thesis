@@ -42,12 +42,26 @@ def get_end_effector_pose(ee_prim_path):
 
 
 def is_close_enough(current_pos, target_pos, current_ori, target_ori, pos_threshold=0.03, ori_threshold=0.03):
+    # # Euclidean distance for position
+    # pos_diff = np.linalg.norm(current_pos - target_pos)
+    # # Quaternion difference (dot product approach)
+    # dot_val = abs(np.dot(current_ori, target_ori))
+    # ori_diff = 1.0 - dot_val
+    # return (pos_diff < pos_threshold) and (ori_diff < ori_threshold)
+
     # Euclidean distance for position
     pos_diff = np.linalg.norm(current_pos - target_pos)
-    # Quaternion difference (dot product approach)
-    dot_val = abs(np.dot(current_ori, target_ori))
-    ori_diff = 1.0 - dot_val
-    return (pos_diff < pos_threshold) and (ori_diff < ori_threshold)
+
+    # Compute the dot product between current and target quaternion
+    dot_val = np.clip(np.dot(current_ori, target_ori), -1.0, 1.0)
+
+    # Compute the angular difference in radians (angle = 2*arccos(dot))
+    angle_diff = 2 * np.arccos(abs(dot_val))
+
+    # Debug: print differences
+    print(f"Position difference: {pos_diff:.4f}, Orientation difference (rad): {angle_diff:.4f}")
+
+    return (pos_diff < pos_threshold) and (angle_diff < ori_threshold)
 
 
 def track_task_progress(articulation_controller, controller, target_pos, target_ori, task_state):
@@ -73,7 +87,7 @@ def track_task_progress(articulation_controller, controller, target_pos, target_
         # articulation_controller.apply_action(actions)
         robot_move_to_target(articulation_controller, controller, target_pos, target_ori)
 
-    print("Current EE Position:", current_pos)
+    log_message_save("Current EE Position: " + str(current_pos))
 
 
 def robot_move_to_target(articulation_controller, controller, target_position, target_orientation):
@@ -83,9 +97,7 @@ def robot_move_to_target(articulation_controller, controller, target_position, t
     )
     # Execute actions
     articulation_controller.apply_action(actions)
-    print("Target Position:", target_position)
-    print("Computed Actions:", actions)
-    logging.info(f"Moving to target position: {target_position}, orientation: {target_orientation}")
+    log_message_save("Moving to target position: " + str(target_position) + "\nTarget Orientation: " + str(target_orientation) + "\nComputed Actions: " + str(actions))
     # Optionally, you can add a small delay to allow for smoother motion
     # time.sleep(0.1)  # Adjust as needed
     world.step()

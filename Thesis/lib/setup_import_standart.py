@@ -1,7 +1,9 @@
+import os
 import sys
 import zmq
 import carb
 import logging
+import datetime
 import argparse
 import numpy as np
 
@@ -100,3 +102,40 @@ def calc_object_midpoint(prim):
     object_mid_Z = object_top_mid_position[2]
 
     return object_top_mid_position, object_mid_X, object_mid_Y, object_mid_Z
+
+
+def log_message_save(message):
+    """
+    Save a log message to a file.
+
+    Args:
+        message (str): The message to save.
+    """
+    # Get the current timestamp
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Format the log message with the timestamp
+    log_entry = f"{timestamp}    {message}"
+
+    # Append the log entry to the log file
+    log_file_path = os.path.join("myscripts", "Thesis", "lib", "log.txt")
+    with open(log_file_path, "a") as log_file:
+        log_file.write(log_entry + "\n")
+
+def log_robot_message(message):
+    """
+    Save a log message to a file.
+
+    Args:
+        message (str): The message to save.
+    """
+    # Get the current timestamp
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Format the log message with the timestamp
+    log_entry = f"{timestamp}    {message}"
+
+    # Append the log entry to the log file
+    log_file_path = os.path.join("myscripts", "Thesis", "lib", "robot_log.txt")
+    with open(log_file_path, "a") as log_file:
+        log_file.write(log_entry + "\n")

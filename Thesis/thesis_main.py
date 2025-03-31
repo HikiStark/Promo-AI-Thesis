@@ -22,8 +22,11 @@ print("-" * 120 + "\n")
 
 articulation_controller, my_controller_RMP, my_controller_PP = setup_robot()
 world.reset()
-world.step()
+for _ in range(5):  # Step a few times to allow transforms to update
+    world.step()
 scene = tasksetup.set_the_scene(simulation_app)
+# world.reset()
+# world.step()
 camera_instance = scene.camera
 print("camera_instance:", camera_instance)
 
@@ -54,15 +57,13 @@ def main() -> None:
             try:
                 msg = cmd_socket.recv(zmq.NOBLOCK)
                 command = json.loads(msg.decode("utf-8"))
-                print("Received command:", command)
+                print("Received command:", command), log_message_save("Received command: " + str(command))
                 if command.get("command") == "move":
                     external_control_active = True
                     target_position = np.array(command["target_position"])
                     target_orientation = np.array(command["target_orientation"])
                     message_recieved = True
-                    # Debug: Print the target values
-                    print("Target Position:", target_position)
-                    print("Target Orientation:", target_orientation)
+                    log_message_save("Target Position: " + str(target_position) + "\nTarget Orientation: " + str(target_orientation))
             except Exception as e:
                 print("Error processing command:", e)
 
