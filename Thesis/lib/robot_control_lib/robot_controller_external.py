@@ -14,7 +14,13 @@ def main():
     time.sleep(1)
 
     # Create a command message with a target position and orientation.
-    command = {"command": "move", "target_position": [0.5, 0.5, 0.3], "target_orientation": [0, 0, 0, 1]}  # Example target position  # Example target orientation (quaternion)
+    command = {
+        "command": "move",
+        "target_position": [0.5, 0.5, 0.3],
+        # New target: use the robot’s natural EE orientation (close to measured value)
+        # "target_orientation": [0, 0, 1, 0],  # New target: use the robot’s natural EE orientation (close to measured value)
+        "target_orientation": [0, 0, 0, 1] # Old target (identity)
+    }  # Example target position  # Example target orientation (quaternion)
 
     # Send the command as a JSON string.
     socket.send(json.dumps(command).encode("utf-8"))

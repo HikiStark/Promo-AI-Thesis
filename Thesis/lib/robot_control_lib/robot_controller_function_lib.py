@@ -10,6 +10,8 @@ def get_prim_world_transform(prim):
     transform_gf = xformable.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
     # Convert pxr.Gf.Matrix4d to a NumPy array
     transform_np = np.array(transform_gf)
+    print("Transform Matrix for prim", prim.GetPath(), ":", transform_np)
+    log_robot_message("Transform Matrix for prim " + str(prim.GetPath()) + ":\n" + str(transform_np))
     return transform_np
 
 
@@ -31,17 +33,22 @@ def get_end_effector_pose(ee_prim_path):
     ee_prim = get_prim_at_path(ee_prim_path)
     if not ee_prim.IsValid():
         print(f"[Error] End effector prim not found at: {ee_prim_path}")
+        log_robot_message("[Error] End effector prim not found at: " + str(ee_prim_path))
         return None, None
+    else:
+        print(f"Found end effector prim at: {ee_prim.GetPath()}")
 
     transform_np = get_prim_world_transform(ee_prim)
     # Position is the last column of the 4x4
-    position = transform_np[:3, 3]
+    position = transform_np[3, :3]
     # Convert rotation to a quaternion
     orientation = matrix_to_quat(transform_np)
+    print("Measured EE Quaternion:", orientation)
+    log_message_save("Measured EE Quaternion: " + str(orientation))
     return position, orientation
 
 
-def is_close_enough(current_pos, target_pos, current_ori, target_ori, pos_threshold=0.03, ori_threshold=0.03):
+def is_close_enough(current_pos, target_pos, current_ori, target_ori, pos_threshold=0.10, ori_threshold=0.10):
     # # Euclidean distance for position
     # pos_diff = np.linalg.norm(current_pos - target_pos)
     # # Quaternion difference (dot product approach)
@@ -60,6 +67,7 @@ def is_close_enough(current_pos, target_pos, current_ori, target_ori, pos_thresh
 
     # Debug: print differences
     print(f"Position difference: {pos_diff:.4f}, Orientation difference (rad): {angle_diff:.4f}")
+    log_robot_message(f"Position difference: {pos_diff:.4f}, Orientation difference (rad): {angle_diff:.4f}")
 
     return (pos_diff < pos_threshold) and (angle_diff < ori_threshold)
 
@@ -72,6 +80,7 @@ def track_task_progress(articulation_controller, controller, target_pos, target_
     current_pos, current_ori = get_end_effector_pose("/World/UR10/ee_link")
     if current_pos is None:
         print("Could not get EE pose, skipping this frame.")
+        log_robot_message("Could not get EE pose, skipping this frame.")
         return
 
     # Check thresholds
@@ -97,7 +106,8 @@ def robot_move_to_target(articulation_controller, controller, target_position, t
     )
     # Execute actions
     articulation_controller.apply_action(actions)
-    log_message_save("Moving to target position: " + str(target_position) + "\nTarget Orientation: " + str(target_orientation) + "\nComputed Actions: " + str(actions))
+    log_message_save("Moving to target position: " + str(target_position) + " Target Orientation: " + str(target_orientation))
+    log_message_save("Computed Actions: " + str(actions))
     # Optionally, you can add a small delay to allow for smoother motion
     # time.sleep(0.1)  # Adjust as needed
     world.step()

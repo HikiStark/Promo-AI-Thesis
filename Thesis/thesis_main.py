@@ -40,15 +40,16 @@ print("\n" + "-" * 120)
 def main() -> None:
     # Main simulation loop.
     external_control_active = False  # Flag to track external control
-    reset_needed = False
 
-    # Example: define a task
-    # target_position = np.array([0.5, 0.5, 0.3])
-    # target_orientation = np.array([0, 0, 0, 1])  # quaternion
+    # # Example: define a task
+    # target_position = np.array([0.4, 0.2, 0.2])
+    # target_orientation = np.array([0, 0, 1, 0])  # quaternion
+    # log_message_save("Target Position: " + str(target_position) + "Target Orientation: " + str(target_orientation))
     task_state = {"done": False}  # Track if task is complete
     message_recieved = False  # Flag to track if a message was received
 
     while simulation_app.is_running():
+        reset_needed = False
         # Step the simulation with rendering enabled.
         world.step(render=True)
 
@@ -62,8 +63,14 @@ def main() -> None:
                     external_control_active = True
                     target_position = np.array(command["target_position"])
                     target_orientation = np.array(command["target_orientation"])
+                    # You can compute a correction quaternion if needed
+                    inherent_offset = R.from_quat(target_orientation)  # if that is the inherent EE frame
+                    desired = R.from_quat([0, 0, 0, 1])
+                    correction = desired * inherent_offset.inv()
+                    # Then apply correction to the measured orientation to see if it aligns with the desired one.
+                    target_orientation = correction.as_quat()
                     message_recieved = True
-                    log_message_save("Target Position: " + str(target_position) + "\nTarget Orientation: " + str(target_orientation))
+                    log_message_save("Target Position: " + str(target_position) + "Target Orientation: " + str(target_orientation))
             except Exception as e:
                 print("Error processing command:", e)
 

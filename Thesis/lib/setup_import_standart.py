@@ -118,7 +118,7 @@ def log_message_save(message):
     log_entry = f"{timestamp}    {message}"
 
     # Append the log entry to the log file
-    log_file_path = os.path.join("myscripts", "Thesis", "lib", "log.txt")
+    log_file_path = os.path.join("myscripts", "Thesis", "lib", "logs", "log.txt")
     with open(log_file_path, "a") as log_file:
         log_file.write(log_entry + "\n")
 
@@ -136,6 +136,6 @@ def log_robot_message(message):
     log_entry = f"{timestamp}    {message}"
 
     # Append the log entry to the log file
-    log_file_path = os.path.join("myscripts", "Thesis", "lib", "robot_log.txt")
+    log_file_path = os.path.join("myscripts", "Thesis", "lib", "logs", "robot_log.txt")
     with open(log_file_path, "a") as log_file:
         log_file.write(log_entry + "\n")
